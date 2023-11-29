@@ -19,6 +19,30 @@ const routes = [
   },
 ]
 
+const questMeta = { group: 'quests', needAuthentication: true }
+const questRoutes = [
+  {
+    path: '/quests',
+    name: 'questsList',
+    meta: questMeta,
+    component: () => import('../views/quest/QuestListView.vue')
+  },
+  {
+    path: '/quests/save',
+    name: 'questSave',
+    meta: questMeta,
+    component: () => import('../views/quest/QuestFormView.vue')
+  },
+  {
+    path: '/quests/:questId(\\d+)',
+    name: 'questUpdate',
+    meta: questMeta,
+    component: () => import('../views/quest/QuestFormView.vue')
+  }
+]
+
+routes.push(...questRoutes)
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: routes
