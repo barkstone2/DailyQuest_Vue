@@ -26,3 +26,11 @@ body {
   overflow: hidden;
   font-family: Maplestory-light, serif !important;
 }
+
+* {
+  font-family: Maplestory-light, serif !important;
+}
+
+.text-h4, .text-h5, .text-h6 {
+  font-family: Maplestory-light, serif !important;
+}
