@@ -25,7 +25,9 @@ const sideMenus = [
   }
 ]
 
-export const menu = reactive({
+
+
+export const MENU = reactive({
   sideMenuOpened: false,
   selectedMenuOnSide: '',
   redirectRoute: '/',

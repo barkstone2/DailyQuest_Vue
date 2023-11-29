@@ -22,18 +22,18 @@ function isLoggedIn() {
 }
 
 function updatePrincipal(data) {
-  principal.id = data.id
-  principal.nickname = data.nickname
-  principal.providerType = data.providerType
-  principal.authorities = data.authorities
-  principal.level = data.level
-  principal.currentExp = data.currentExp
-  principal.requireExp = data.requireExp
-  principal.gold = data.gold
-  principal.resetTime = data.resetTime
-  principal.coreTime = data.coreTime
-  principal.resetTimeLastModifiedDate = data.resetTimeLastModifiedDate
-  principal.coreTimeLastModifiedDate = data.coreTimeLastModifiedDate
+  PRINCIPAL.id = data.id
+  PRINCIPAL.nickname = data.nickname
+  PRINCIPAL.providerType = data.providerType
+  PRINCIPAL.authorities = data.authorities
+  PRINCIPAL.level = data.level
+  PRINCIPAL.currentExp = data.currentExp
+  PRINCIPAL.requireExp = data.requireExp
+  PRINCIPAL.gold = data.gold
+  PRINCIPAL.resetTime = data.resetTime
+  PRINCIPAL.coreTime = data.coreTime
+  PRINCIPAL.resetTimeLastModifiedDate = data.resetTimeLastModifiedDate
+  PRINCIPAL.coreTimeLastModifiedDate = data.coreTimeLastModifiedDate
 
   const newPrincipal = {
     id: data.id,
@@ -75,7 +75,7 @@ function calcRemainTimeUntilToUpdate(compareDate) {
   return `${hours}시간 ${minutes}분`
 }
 
-export const principal = reactive({
+export const PRINCIPAL = reactive({
   id: null,
   nickname: '',
   providerType: '',
@@ -89,19 +89,19 @@ export const principal = reactive({
   resetTimeLastModifiedDate: null,
   coreTimeLastModifiedDate: null,
   isAdmin: computed(() => {
-    return principal.authorities.indexOf('ROLE_ADMIN') > -1
+    return PRINCIPAL.authorities.indexOf('ROLE_ADMIN') > -1
   }),
   canUpdateCoreTime: computed(() => {
-    return isBeforeOneDayFromNowOrIsNull(principal.coreTimeLastModifiedDate)
+    return isBeforeOneDayFromNowOrIsNull(PRINCIPAL.coreTimeLastModifiedDate)
   }),
   canUpdateResetTime: computed(() => {
-    return isBeforeOneDayFromNowOrIsNull(principal.resetTimeLastModifiedDate)
+    return isBeforeOneDayFromNowOrIsNull(PRINCIPAL.resetTimeLastModifiedDate)
   }),
   remainTimeUntilToUpdateCoreTime: computed(() => {
-    return calcRemainTimeUntilToUpdate(principal.coreTimeLastModifiedDate)
+    return calcRemainTimeUntilToUpdate(PRINCIPAL.coreTimeLastModifiedDate)
   }),
   remainTimeUntilToUpdateResetTime: computed(() => {
-    return calcRemainTimeUntilToUpdate(principal.resetTimeLastModifiedDate)
+    return calcRemainTimeUntilToUpdate(PRINCIPAL.resetTimeLastModifiedDate)
   }),
   invalidate() {
     this.id = null
