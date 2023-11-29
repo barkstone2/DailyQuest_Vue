@@ -1,9 +1,7 @@
 <script setup>
-import TheWelcome from '../components/TheWelcome.vue'
+import router from '@/router';
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+    <span></span>
 </template>
