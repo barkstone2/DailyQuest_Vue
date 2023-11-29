@@ -43,6 +43,18 @@ const questRoutes = [
 
 routes.push(...questRoutes)
 
+const settingsMeta = { group: 'setting', needAuthentication: true };
+const settingsRoutes = [
+  {
+    path: '/settings',
+    name: 'setting',
+    meta: settingsMeta,
+    component: () => import('../views/SettingView.vue')
+  },
+]
+
+routes.push(...settingsRoutes)
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: routes
