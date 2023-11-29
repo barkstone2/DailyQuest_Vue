@@ -43,6 +43,32 @@ const questRoutes = [
 
 routes.push(...questRoutes)
 
+const adminMeta = { group: 'admin', needAdmin: true };
+const adminRoutes = [
+  {
+    path: '/admin',
+    name: 'admin',
+    meta: adminMeta,
+    component: () => import('../views/admin/AdminView.vue'),
+    children: [
+      {
+        path: '',
+        name: 'adminSettings',
+        meta: adminMeta,
+        component: () => import('../views/admin/AdminSettingsView.vue')
+      },
+      {
+        path: 'exp-table',
+        name: 'expTable',
+        meta: adminMeta,
+        component: () => import('../views/admin/AdminExpTableView.vue')
+      }
+    ]
+  }
+]
+
+routes.push(...adminRoutes)
+
 const settingsMeta = { group: 'setting', needAuthentication: true };
 const settingsRoutes = [
   {
