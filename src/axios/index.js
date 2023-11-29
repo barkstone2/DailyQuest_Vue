@@ -1,7 +1,7 @@
 import axios from 'axios'
 import router from '@/router'
 import { API_CONFIG } from '@/stores/api'
-import { principal } from '@/stores/principal'
+import { PRINCIPAL } from '@/stores/principal'
 
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = API_CONFIG.SERVER_URL
@@ -16,7 +16,7 @@ axios.interceptors.response.use(
 
     switch (state) {
       case 401:
-        principal.invalidate()
+        PRINCIPAL.invalidate()
         router.push('/login')
         break
 

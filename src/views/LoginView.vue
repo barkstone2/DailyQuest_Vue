@@ -2,8 +2,8 @@
 import axios from 'axios';
 import { onMounted } from 'vue';
 import router from '@/router';
-import { principal } from '@/stores/principal';
-import { menu } from '@/stores/menu';
+import { PRINCIPAL } from '@/stores/principal';
+import { MENU } from '@/stores/menu';
 import { API_URL, API_CONFIG } from '@/stores/api';
 
 function onLoginSuccess(response) {
@@ -15,9 +15,9 @@ function onLoginSuccess(response) {
             "idToken": googleIdToken,
             "providerType": "GOOGLE"
         }
-    ).then(function (res) {
-        principal.synchronize().then(() => {
-            router.push(menu.redirectRoute)
+    ).then(function () {
+        PRINCIPAL.synchronize().then(() => {
+            router.push(MENU.redirectRoute)
         })
     })
 }

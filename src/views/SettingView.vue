@@ -1,14 +1,14 @@
 <script setup>
 import axios from 'axios'
 import router from '../router';
-import { principal } from '@/stores/principal';
+import { PRINCIPAL } from '@/stores/principal';
 import { ref, reactive } from 'vue';
 import { API_CONFIG, API_URL } from '@/stores/api';
 
 const dto = reactive({
-    nickname: principal.nickname,
-    resetTime: principal.resetTime,
-    coreTime: principal.coreTime
+    nickname: PRINCIPAL.nickname,
+    resetTime: PRINCIPAL.resetTime,
+    coreTime: PRINCIPAL.coreTime
 })
 
 function hours() {
@@ -28,9 +28,9 @@ async function requestSettings() {
     const { valid } = await form.value.validate()
     if (valid) {
         axios.patch(API_URL.USER_UPDATE, dto)
-            .then((res) => {
+            .then(() => {
                 // 유저정보 업데이트
-                principal.synchronize(true).then((res) => {
+                PRINCIPAL.synchronize(true).then(() => {
                     alert('변경 완료')
                 })
             })
@@ -60,8 +60,8 @@ async function requestSettings() {
                         :items="hours()"
                         :item-title="(item) => `${item}시`"
                         :item-value="(item) => item"
-                        :readonly="!principal.canUpdateResetTime"
-                        :messages="!principal.canUpdateResetTime ? ['변경 후 24시간이 지나야 변경할 수 있어요.', `다음 변경까지 : ${principal.remainTimeUntilToUpdateResetTime}`] : ''"
+                        :readonly="!PRINCIPAL.canUpdateResetTime"
+                        :messages="!PRINCIPAL.canUpdateResetTime ? ['변경 후 24시간이 지나야 변경할 수 있어요.', `다음 변경까지 : ${PRINCIPAL.remainTimeUntilToUpdateResetTime}`] : ''"
                     >
                     </VSelect>
                     <VSelect
@@ -71,8 +71,8 @@ async function requestSettings() {
                         :items="hours()"
                         :item-title="(item) => `${item}~${item+1}시`"
                         :item-value="(item) => item"
-                        :readonly="!principal.canUpdateCoreTime"
-                        :messages="!principal.canUpdateCoreTime ? ['변경 후 24시간이 지나야 변경할 수 있어요.', `다음 변경까지 : ${principal.remainTimeUntilToUpdateCoreTime}`] : ''"
+                        :readonly="!PRINCIPAL.canUpdateCoreTime"
+                        :messages="!PRINCIPAL.canUpdateCoreTime ? ['변경 후 24시간이 지나야 변경할 수 있어요.', `다음 변경까지 : ${PRINCIPAL.remainTimeUntilToUpdateCoreTime}`] : ''"
                     >
                     </VSelect>
                     <div class="d-flex justify-center py-3">
