@@ -1,7 +1,7 @@
 <script setup>
 import axios from 'axios'
 import { ref, reactive, watch, computed } from 'vue';
-import { API_CONFIG, API_URL } from '@/stores/api';
+import { API_URL } from '@/stores/api';
 
 const keywordTypeItems = [
     { title: '전체', value: 'ALL' },
@@ -90,9 +90,7 @@ function searchQuest() {
     console.log(queryString)
     
     axios
-        .get(`${API_URL.QUEST_SEARCH}${queryString}`, {
-            baseURL: API_CONFIG.SERVER_URL,
-        })
+        .get(`${API_URL.QUEST_SEARCH}${queryString}`)
         .then((res) => {
             if (res) {
                 const data = res.data.data

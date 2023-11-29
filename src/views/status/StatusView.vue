@@ -1,8 +1,30 @@
 <script setup>
+import axios from 'axios'
 import { PRINCIPAL } from '@/stores/principal';
-import { ref } from 'vue';
+import {computed, reactive, ref} from 'vue';
+import { API_URL } from '@/stores/api';
 
 const tab = ref(null)
+
+const totalStatistics = reactive({
+  registeredCount: 0,
+  completedCount: 0,
+  discardedCount: 0,
+  failedCount: 0,
+  completeRatio: computed(() => Math.round(totalStatistics.completedCount * 100 / totalStatistics.registeredCount))
+})
+
+axios
+    .get(`${API_URL.STATUS}`)
+    .then((res) => {
+      if (res) {
+        const data = res.data.data
+        totalStatistics.registeredCount = data.registeredCount
+        totalStatistics.completedCount = data.completedCount
+        totalStatistics.discardedCount = data.discardedCount
+        totalStatistics.failedCount = data.failedCount
+      }
+    })
 
 </script>
 <style>
@@ -30,22 +52,22 @@ const tab = ref(null)
                             {{ PRINCIPAL.currentExp }} / {{ PRINCIPAL.requireExp }} ({{ Math.ceil(PRINCIPAL.currentExp / PRINCIPAL.requireExp * 100) }}%)
                         </VProgressLinear>
                     </div>
-                    <div>
-                        <!-- 골드 아이콘 -->
-                        {{ PRINCIPAL.gold }} GOLD
+                    <div class="d-flex align-center py-3">
+                      <img alt="gold coin image" src="@/assets/gold-coin.png" style="width: 39px; height:40px"/>
+                      <div class="ps-2"> X {{ PRINCIPAL.gold }}</div>
                     </div>
                     <div>
                         <div>
-                            총 등록한 퀘스트 수 30
+                            총 등록한 퀘스트 수 - {{ totalStatistics.registeredCount }}
                         </div>
                         <div>
-                            총 완료한 퀘스트 수 15
+                            총 완료한 퀘스트 수 - {{ totalStatistics.completedCount }} (완료율 {{ totalStatistics.completeRatio }}%)
                         </div>
                         <div>
-                            총 포기한 퀘스트 수 3
+                            총 포기한 퀘스트 수 - {{ totalStatistics.discardedCount }}
                         </div>
                         <div>
-                            총 실패한 퀘스트 수 5
+                            총 실패한 퀘스트 수 - {{ totalStatistics.failedCount }}
                         </div>
                     </div>
                 </div>
