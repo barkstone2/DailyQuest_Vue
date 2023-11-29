@@ -1,21 +1,21 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterView } from 'vue-router';
+import { principal } from './stores/principal'
+
 </script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+    <VLayout class="h-100" style="place-items: center;">
+        <VBtn v-if="principal.id" rounded="lg" height="auto" class="position-fixed text-left pa-2 ma-5"
+            style="top:0; right:0;" @click.stop="menu.toggleSideMenu()">
+            <div>
+                <div class="d-flex pb-2 align-center">
+                    <div class="pe-3 font-weight-bold" style="font-size:medium">{{ principal.nickname }}</div>
+                    <div>Level {{ principal.level }}</div>
+                </div>
+                <div>Exp {{ principal.getExpText() }}</div>
+                <div>Gold {{ principal.gold }}</div>
+            </div>
+        </VBtn>
 
             <VDivider></VDivider>
 
