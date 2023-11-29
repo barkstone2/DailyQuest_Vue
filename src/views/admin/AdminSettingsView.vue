@@ -13,7 +13,7 @@ async function requestSettings() {
         axios.put(API_URL.ADMIN_SETTING_UPDATE, admin.settings, {
             baseURL: admin.baseURL
         })
-            .then((res) => {
+            .then(() => {
                 alert('변경 완료')
             })
     }

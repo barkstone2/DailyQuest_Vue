@@ -13,7 +13,7 @@ async function requestExpTable() {
         axios.put(API_URL.ADMIN_EXP_TABLE_UPDATE, admin.expTable, {
             baseURL: admin.baseURL
         })
-            .then((res) => {
+            .then(() => {
                 alert('변경 완료')
             })
     }
