@@ -1,6 +1,7 @@
 <script setup>
 import { RouterView } from 'vue-router';
 import { principal } from './stores/principal'
+import { menu } from './stores/menu';
 
 </script>
 <template>
@@ -16,6 +17,17 @@ import { principal } from './stores/principal'
                 <div>Gold {{ principal.gold }}</div>
             </div>
         </VBtn>
+        <VNavigationDrawer v-model="menu.sideMenuOpened" temporary location="right">
+            <VListItem>
+                <VListItemTitle class="pa-1">
+                    <div class="d-flex pb-2 align-center">
+                        <div class="pe-3 font-weight-bold" style="font-size:medium">{{ principal.nickname }}</div>
+                        <div>Level {{ principal.level }}</div>
+                    </div>
+                    <div>Exp {{ principal.getExpText() }}</div>
+                    <div>Gold {{ principal.gold }}</div>
+                </VListItemTitle>
+            </VListItem>
 
             <VDivider></VDivider>
 
