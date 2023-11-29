@@ -43,6 +43,32 @@ const questRoutes = [
 
 routes.push(...questRoutes)
 
+const statusMeta = { group: 'status', needAuthentication: true }
+const statusRoutes = [
+  {
+    path: '/status',
+    name: 'status',
+    meta: statusMeta,
+    component: () => import('../views/status/StatusView.vue'),
+    children: [
+      {
+        name: 'statistics',
+        path: '',
+        meta: statusMeta,
+        component: () => import('../views/status/CalendarView.vue')
+      },
+      {
+        name: 'quest-history',
+        path: 'history',
+        meta: statusMeta,
+        component: () => import('../views/status/HistoryView.vue')
+      }
+    ]
+  },
+]
+
+routes.push(...statusRoutes)
+
 const adminMeta = { group: 'admin', needAdmin: true };
 const adminRoutes = [
   {
