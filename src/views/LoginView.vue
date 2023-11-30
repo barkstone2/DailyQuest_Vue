@@ -6,6 +6,8 @@ import { PRINCIPAL } from '@/stores/principal';
 import { MENU } from '@/stores/menu';
 import { API_URL, API_CONFIG } from '@/stores/api';
 
+if(PRINCIPAL.id) router.push("/")
+
 function onLoginSuccess(response) {
 
     const googleIdToken = response.credential
