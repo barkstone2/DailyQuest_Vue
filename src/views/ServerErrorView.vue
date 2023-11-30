@@ -16,9 +16,7 @@ function healthCheck() {
       })
 }
 
-setTimeout(() => {
-  healthCheck()
-}, 10000)
+healthCheck()
 
 </script>
 <template>
