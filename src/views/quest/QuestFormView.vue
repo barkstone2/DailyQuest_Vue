@@ -28,8 +28,8 @@ const form = ref(null)
 async function requestQuest() {
 
     const { valid } = await form.value.validate()
-    if (valid) {
-
+    if (valid && !dto.submitting) {
+        dto.submitting = true
         if (dto.id) {
             axios.patch(API_URL.QUEST_UPDATE(dto.id), dto)
                 .then(() => {
