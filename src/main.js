@@ -10,12 +10,17 @@ import '@mdi/font/css/materialdesignicons.css'
 
 import { PRINCIPAL } from '@/stores/principal'
 import { MENU } from '@/stores/menu'
+import {API_CONFIG} from "@/stores/api";
 
-if (!PRINCIPAL.id) {
-  PRINCIPAL.synchronize()
+if(!API_CONFIG.SERVER_ERROR) {
+  // 현재 사용자 정보가 없을 때 동기화 시도. 실패 시 로그인 화면으로 이동
+  if (!PRINCIPAL.id) {
+    PRINCIPAL.synchronize()
+  }
 }
-
 router.beforeEach((to, from) => {
+  if(API_CONFIG.SERVER_ERROR) return
+
   // 로그인 페이지에서 다시 로그인 페이지로 이동하는 경우
   if (from.path === '/login' && to.path === '/login') {
     return false
@@ -41,12 +46,6 @@ router.beforeEach((to, from) => {
   // 접근한 페이지가 사이드 메뉴에 존재하는 경우
   if (to.meta.group) {
     MENU.selectedMenuOnSide = to.meta.group
-  }
-})
-
-router.onError((error) => {
-  if(error.errorCode === 401) {
-    return { path : '/login' }
   }
 })
 
