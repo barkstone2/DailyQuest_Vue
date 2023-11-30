@@ -2,10 +2,10 @@ name: 뷰 애플리케이션 빌드 & 배포
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - v*
 
-run-name: '[빌드 & 배포] For "${{ github.event.head_commit.message }}"'
+run-name: '[빌드 & 배포] For "${{ github.ref_name }}"'
 
 jobs:
   build-and-delivery:
@@ -37,8 +37,8 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: 도커 이미지 빌드 & 푸쉬
         run: |
-          docker build -t barkstone2/dailyquest-client:${{ github.sha }} .
-          docker push barkstone2/dailyquest-client:${{ github.sha }}
+          docker build -t barkstone2/dailyquest-client:${{ github.ref_name }} .
+          docker push barkstone2/dailyquest-client:${{ github.ref_name }}
 
   deployment:
     name: EC2 배포
@@ -59,14 +59,14 @@ jobs:
         run: |
           aws deploy push \
             --application-name dailyquest-client \
-            --s3-location s3://dailyquest-store/deploy/client/dailyquest-client-${{ github.sha }}.tar \
+            --s3-location s3://dailyquest-store/deploy/client/dailyquest-client-${{ github.ref_name }}.tar \
             --source ./deploy
       - name: CodeDeploy 배포
         run: |
           aws deploy create-deployment \
             --application-name dailyquest-client \
             --deployment-group-name dailyquest-client-group \
-            --s3-location bucket=dailyquest-store,key=deploy/client/dailyquest-client-${{ github.sha}}.tar,bundleType=zip
+            --s3-location bucket=dailyquest-store,key=deploy/client/dailyquest-client-${{ github.ref_name }}.tar,bundleType=zip
 
   fail-slack-message:
     name: 파이프라인 실패 알림
