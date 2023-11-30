@@ -4,7 +4,7 @@ import router from '@/router'
 import {API_URL} from '@/stores/api'
 
 const ENV = import.meta.env
-const LOCAL_STORAGE_KEY = ENV.VITE_LOCAL_STORAGE_KEY
+const SESSION_STORAGE_KEY = ENV.VITE_SESSION_STORAGE_KEY
 
 const nowDate = new Date()
 nowDate.setSeconds(0)
@@ -18,7 +18,7 @@ setInterval(() => {
 }, 60 * 1000)
 
 function hasPrincipalOnSessionStorage() {
-  return !!sessionStorage.getItem(LOCAL_STORAGE_KEY)
+  return !!sessionStorage.getItem(SESSION_STORAGE_KEY)
 }
 
 function updatePrincipal(data) {
@@ -54,11 +54,11 @@ function updateSessionStorage() {
     coreTimeLastModifiedDate: PRINCIPAL.coreTimeLastModifiedDate
   }
 
-  sessionStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newPrincipal))
+  sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(newPrincipal))
 }
 
 function getPrincipalFromLocalStorage() {
-  const json = sessionStorage.getItem(LOCAL_STORAGE_KEY)
+  const json = sessionStorage.getItem(SESSION_STORAGE_KEY)
   return JSON.parse(json)
 }
 
@@ -109,7 +109,7 @@ export const PRINCIPAL = reactive({
   }),
   invalidate() {
     this.id = null
-    sessionStorage.removeItem(LOCAL_STORAGE_KEY)
+    sessionStorage.removeItem(SESSION_STORAGE_KEY)
   },
   logout() {
     axios.post(API_URL.TOKEN_INVALIDATE).then(() => {
