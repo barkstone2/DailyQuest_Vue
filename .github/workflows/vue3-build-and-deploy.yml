@@ -1,0 +1,91 @@
+name: 뷰 애플리케이션 빌드 & 배포
+
+on:
+  push:
+    branches:
+      - main
+
+run-name: '[빌드 & 배포] For "${{ github.event.head_commit.message }}"'
+
+jobs:
+  build-and-delivery:
+    name: Vite 빌드 & 푸쉬 도커 이미지
+    runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
+      VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+      VITE_SESSION_STORAGE_KEY: ${{ vars.VITE_SESSION_STORAGE_KEY }}
+    steps:
+      - name: Node.js 셋업
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: 리포지토리 체크아웃
+        uses: actions/checkout@v3
+
+      - name: 의존성 설치
+        run: npm install
+
+      - name: vite 빌드
+        run: npm run build
+
+      - name: 도커 허브 로그인
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: 도커 이미지 빌드 & 푸쉬
+        run: |
+          docker build -t barkstone2/dailyquest-client:${{ github.sha }} .
+          docker push barkstone2/dailyquest-client:${{ github.sha }}
+
+  deployment:
+    name: EC2 배포
+    runs-on: ubuntu-latest
+    needs: build-and-delivery
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_DEPLOY_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_DEPLOY_SECRET_KEY }}
+      AWS_DEFAULT_REGION: ap-northeast-2
+    steps:
+      - name: 리포지토리 체크아웃
+        uses: actions/checkout@v3
+      - name: 버전 정보 생성
+        run: |
+          cd deploy
+          echo ${{ github.sha }} > version.txt
+      - name: CodeDeploy 푸쉬
+        run: |
+          aws deploy push \
+            --application-name dailyquest-client \
+            --s3-location s3://dailyquest-store/deploy/client/dailyquest-client-${{ github.sha }}.tar \
+            --source ./deploy
+      - name: CodeDeploy 배포
+        run: |
+          aws deploy create-deployment \
+            --application-name dailyquest-client \
+            --deployment-group-name dailyquest-client-group \
+            --s3-location bucket=dailyquest-store,key=deploy/client/dailyquest-client-${{ github.sha}}.tar,bundleType=zip
+
+  fail-slack-message:
+    name: 파이프라인 실패 알림
+    runs-on: ubuntu-latest
+    needs: deployment
+    if: failure()
+    steps:
+      - name: 실패 메시지 가공
+        id: create-message
+        run: |
+          MESSAGE=$(echo "${{ github.event.head_commit.message }}" | head -n 1)
+          echo "fail_message=$MESSAGE" >> "$GITHUB_OUTPUT"
+      - name: 슬랙 메시지 전송
+        id: slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "<!channel> ❗️[${{ github.workflow }}] Failure: For \"${{ steps.create-message.outputs.fail_message }}\""
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
