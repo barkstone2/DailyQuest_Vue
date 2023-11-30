@@ -17,6 +17,11 @@ const routes = [
     name: 'login',
     component: () => import('../views/LoginView.vue')
   },
+  {
+    path: '/error',
+    name: 'error',
+    component: () => import('@/views/ServerErrorView.vue')
+  }
 ]
 
 const questMeta = { group: 'quests', needAuthentication: true }

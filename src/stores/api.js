@@ -6,7 +6,8 @@ export const API_CONFIG = {
   SERVER_URL: SERVER_DOMAIN + '/api/v1',
   ADMIN_SERVER_URL: SERVER_DOMAIN + '/admin/api/v1',
   GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID,
-  NICKNAME_VALIDATION_REGEX: /^[a-zA-Z0-9가-힣][a-zA-Z0-9가-힣\s]{0,18}[a-zA-Z0-9가-힣]$/
+  NICKNAME_VALIDATION_REGEX: /^[a-zA-Z0-9가-힣][a-zA-Z0-9가-힣\s]{0,18}[a-zA-Z0-9가-힣]$/,
+  SERVER_ERROR: false
 }
 
 const USER_PREFIX = '/users'
