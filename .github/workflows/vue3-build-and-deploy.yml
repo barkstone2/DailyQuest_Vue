@@ -54,7 +54,7 @@ jobs:
       - name: 버전 정보 생성
         run: |
           cd deploy
-          echo ${{ github.sha }} > version.txt
+          echo ${{ github.ref_name }} > version.txt
       - name: CodeDeploy 푸쉬
         run: |
           aws deploy push \
