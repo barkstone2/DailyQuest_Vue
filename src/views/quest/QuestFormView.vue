@@ -4,6 +4,8 @@ import { ref } from 'vue';
 import { API_URL } from '@/stores/api';
 import router from '@/router';
 import { dto } from '@/stores/quest';
+import {PRINCIPAL} from "@/stores/principal";
+import dateUtil from "@/utils/dateUtil";
 
 function appendDetailRow() {
     dto.details.push({
@@ -76,9 +78,10 @@ async function requestQuest() {
                     label="마감기한"
                     type="datetime-local" 
                     :min="formatDate(new Date(new Date().getTime() + 5 * 60 * 1000))" 
-                    max=""
+                    :max="formatDate(PRINCIPAL.nextResetTime)"
                     :rules="[
-                        () => (!dto.deadLine || new Date(dto.deadLine).getTime() > new Date().getTime() + 5 * 60 * 1000) || '선택하지 않거나 현재 시간 + 5분 이후의 시간을 선택해야 합니다.'
+                        () => (!dto.deadLine || new Date(dto.deadLine).getTime() > new Date().getTime() + 5 * 60 * 1000) || '선택하지 않거나 현재 시간 + 5분 이후의 시간을 선택해야 합니다.',
+                        () => (!dto.deadLine || new Date(dto.deadLine).getTime() < PRINCIPAL.nextResetTime) || '선택하지 않거나 다음 초기화 시간보다 앞선 시간을 선택해야 합니다. 다음 초기화 시간 : ' + dateUtil.getDateTimeStr(PRINCIPAL.nextResetTime)
                     ]"
                 >
                 </VTextField>
