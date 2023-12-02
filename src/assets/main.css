@@ -41,3 +41,8 @@ body {
   -ms-user-select: none;     /* IE와 Edge용 */
   user-select: none;         /* 비표준 브라우저용 */
 }
+
+.white-counter .v-counter {
+  color: white;
+}
+
