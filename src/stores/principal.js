@@ -136,5 +136,13 @@ export const PRINCIPAL = reactive({
   getExpText() {
     const ratio = (this.currentExp / this.requireExp) * 100
     return `${this.currentExp} / ${this.requireExp}(${ratio}%)`
-  }
+  },
+  nextResetTime: computed(() => {
+    let nextResetTime = new Date();
+    nextResetTime.setHours(PRINCIPAL.resetTime, 0, 0, 0);
+    if(nextResetTime < now.value) {
+      nextResetTime.setDate(nextResetTime.getDate() + 1)
+    }
+    return nextResetTime
+  })
 })

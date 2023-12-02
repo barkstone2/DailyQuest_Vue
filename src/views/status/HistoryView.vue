@@ -87,15 +87,11 @@ function searchQuest() {
     queryString += `&startDate=${searchCondition.startDate}`
     queryString += `&endDate=${searchCondition.endDate}`
 
-    console.log(queryString)
-    
     axios
         .get(`${API_URL.QUEST_SEARCH}${queryString}`)
         .then((res) => {
             if (res) {
                 const data = res.data.data
-
-                console.log(data)
 
                 searchResult.list = data.content
                 searchResult.totalPages = data.totalPages

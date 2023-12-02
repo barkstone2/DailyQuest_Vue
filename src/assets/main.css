@@ -34,3 +34,15 @@ body {
 .text-h4, .text-h5, .text-h6 {
   font-family: Maplestory-light, serif !important;
 }
+
+.no-drag {
+  -webkit-user-select: none; /* Safari용 */
+  -moz-user-select: none;    /* Firefox용 */
+  -ms-user-select: none;     /* IE와 Edge용 */
+  user-select: none;         /* 비표준 브라우저용 */
+}
+
+.white-counter .v-counter {
+  color: white;
+}
+
