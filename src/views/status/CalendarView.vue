@@ -3,6 +3,9 @@ import axios from 'axios'
 import {computed, ref, reactive, watch} from 'vue';
 import {API_CONFIG, API_URL} from '@/stores/api';
 import dateUtil from '@/utils/dateUtil';
+import LoadingLayer from "@/components/common/LoadingLayer.vue";
+
+const calendarLoading = ref(true)
 
 const today = new Date();
 const yyyy = today.getFullYear();
@@ -39,6 +42,8 @@ const result = reactive({
 loadStatistics()
 
 function loadStatistics() {
+  calendarLoading.value = true
+
   axios
       .get(`${API_URL.STATUS}/${searchCondition.selectedDate}?searchType=${searchCondition.searchType}`, {
         baseURL: API_CONFIG.SERVER_URL,
@@ -50,6 +55,7 @@ function loadStatistics() {
           result.startDate = Object.keys(data.questStatistics)[0];
           searchCondition.selectedDate = data.selectedDate
           result.detail = data.questStatistics[searchCondition.selectedDate];
+          calendarLoading.value = false
         }
       })
 }
@@ -256,6 +262,7 @@ function selectToday() {
 </script>
 <template>
   <div class="block align-center justify-center no-drag">
+    <LoadingLayer v-if="calendarLoading"></LoadingLayer>
     <div class="px-15">
       <div class="d-flex align-center justify-space-between">
         <VTabs bg-color="white" color="black" v-model="searchCondition.searchType" hide-slider align-tabs="center"
