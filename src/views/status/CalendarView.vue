@@ -353,7 +353,7 @@ function selectToday() {
                 }}월
               </div>
               <div>
-                <div>등록 : {{ statistic.mainCount + statistic.subCount }}</div>
+                <div>등록 : {{ statistic.registeredCount }}</div>
                 <div>완료 : {{ statistic.completeCount }}</div>
                 <div>완료율 : {{ statistic.stateRatio }}%</div>
               </div>
@@ -386,6 +386,8 @@ function selectToday() {
         <VRow>
           <VCol cols="6" class="border-e">
             <VRow>
+              <VCol cols="6">등록한 퀘스트</VCol>
+              <VCol cols="6">{{ result.detail.registeredCount }}</VCol>
               <VCol cols="6">완료한 퀘스트</VCol>
               <VCol cols="6">{{ result.detail.completeCount }}</VCol>
               <VCol cols="6">실패한 퀘스트</VCol>
