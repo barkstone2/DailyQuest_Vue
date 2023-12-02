@@ -3,6 +3,9 @@ import axios from 'axios'
 import {computed, ref, reactive, watch} from 'vue';
 import {API_CONFIG, API_URL} from '@/stores/api';
 import dateUtil from '@/utils/dateUtil';
+import LoadingLayer from "@/components/common/LoadingLayer.vue";
+
+const calendarLoading = ref(true)
 
 const today = new Date();
 const yyyy = today.getFullYear();
@@ -22,7 +25,7 @@ const searchCondition = reactive({
 const watchedSearchType = computed(() => searchCondition.searchType)
 
 watch(watchedSearchType, () => {
-  searchCondition.selectedDate = localDateOfToday
+  searchCondition.selectedDate = selectedDateOfType[searchCondition.searchType]
   loadStatistics()
 })
 
@@ -39,6 +42,8 @@ const result = reactive({
 loadStatistics()
 
 function loadStatistics() {
+  calendarLoading.value = true
+
   axios
       .get(`${API_URL.STATUS}/${searchCondition.selectedDate}?searchType=${searchCondition.searchType}`, {
         baseURL: API_CONFIG.SERVER_URL,
@@ -50,6 +55,7 @@ function loadStatistics() {
           result.startDate = Object.keys(data.questStatistics)[0];
           searchCondition.selectedDate = data.selectedDate
           result.detail = data.questStatistics[searchCondition.selectedDate];
+          calendarLoading.value = false
         }
       })
 }
@@ -106,7 +112,6 @@ function getFirstDayOfQuarter(year, quarter) {
   const firstDayOfQuarter = new Date(firstMondayOfYear.getTime())
   firstDayOfQuarter.setDate(firstMondayOfYear.getDate() + weeks * 7)
 
-  console.log(firstDayOfQuarter)
   return dateUtil.getDateStr(firstDayOfQuarter)
 }
 
@@ -117,14 +122,37 @@ const dateNavigator = reactive({
   selectedQuarter: calculateWhichQuarterOfDate(searchCondition.selectedDate).quarter
 })
 
+let needDateNavigatorReset = false
+
+const selectedDateOfType = reactive({
+  DAILY: searchCondition.selectedDate,
+  WEEKLY: searchCondition.selectedDate,
+  MONTHLY: searchCondition.selectedDate,
+})
+
 watch(dateNavigator, (newValue) => {
-  if(searchCondition.searchType === 'DAILY') {
-    searchCondition.selectedDate = newValue.selectedYear + "-" + String(newValue.selectedMonth).padStart(2, '0') + "-" + "01"
-  } else if(searchCondition.searchType === 'WEEKLY') {
-    searchCondition.selectedDate = getFirstDayOfQuarter(newValue.selectedQuarterYear, newValue.selectedQuarter)
-  } else if(searchCondition.searchType === 'MONTHLY') {
-    searchCondition.selectedDate = newValue.selectedYear + "-01-01"
+  if(needDateNavigatorReset) {
+    needDateNavigatorReset = false
+    return
   }
+
+  let dateValue;
+
+  switch (searchCondition.searchType) {
+    case 'DAILY':
+      dateValue = newValue.selectedYear + "-" + String(newValue.selectedMonth).padStart(2, '0') + "-" + "01"
+      break;
+    case 'WEEKLY':
+      dateValue = getFirstDayOfQuarter(newValue.selectedQuarterYear, newValue.selectedQuarter)
+      break;
+    case 'MONTHLY':
+      dateValue = newValue.selectedYear + "-01-01"
+      break;
+  }
+
+  selectedDateOfType[searchCondition.searchType] = dateValue
+  searchCondition.selectedDate = selectedDateOfType[searchCondition.searchType]
+
   loadStatistics()
 })
 
@@ -202,17 +230,52 @@ const reservedYears = computed(() => {
   return years
 })
 
+function selectDetail(selectedDetail) {
+  result.detail = selectedDetail
+  selectedDateOfType[searchCondition.searchType] = selectedDetail.loggedDate
+}
+
+function selectToday() {
+  needDateNavigatorReset = true
+  selectedDateOfType[searchCondition.searchType] = localDateOfToday
+  searchCondition.selectedDate = selectedDateOfType[searchCondition.searchType]
+
+  switch (searchCondition.searchType) {
+    case "DAILY":
+      dateNavigator.selectedYear = new Date(localDateOfToday).getFullYear()
+      dateNavigator.selectedMonth = new Date(localDateOfToday).getMonth() + 1
+      break;
+    case "WEEKLY": {
+      const quarterInfo = calculateWhichQuarterOfDate(localDateOfToday);
+      dateNavigator.selectedQuarterYear = quarterInfo.year
+      dateNavigator.selectedQuarter = quarterInfo.quarter
+      break;
+    }
+    case "MONTHLY":
+      dateNavigator.selectedYear = new Date(localDateOfToday).getFullYear()
+      break;
+  }
+
+  loadStatistics()
+}
+
 </script>
 <template>
-  <div class="block align-center justify-center">
+  <div class="block align-center justify-center no-drag">
+    <LoadingLayer v-if="calendarLoading"></LoadingLayer>
     <div class="px-15">
-      <VTabs bg-color="white" color="black" v-model="searchCondition.searchType" hide-slider align-tabs="center"
-             selected-class="selected-tab" class="my-2 w-fit rounded-lg border">
-        <VTab value="DAILY">일간</VTab>
-        <VTab value="WEEKLY">주간</VTab>
-        <VTab value="MONTHLY">월간</VTab>
-        <!-- <VTab value="YEARLY" @click="changeStateTab">연간</VTab> -->
-      </VTabs>
+      <div class="d-flex align-center justify-space-between">
+        <VTabs bg-color="white" color="black" v-model="searchCondition.searchType" hide-slider align-tabs="center"
+               selected-class="selected-tab" class="my-2 w-fit rounded-lg border">
+          <VTab value="DAILY">일간</VTab>
+          <VTab value="WEEKLY">주간</VTab>
+          <VTab value="MONTHLY">월간</VTab>
+          <!-- <VTab value="YEARLY" @click="changeStateTab">연간</VTab> -->
+        </VTabs>
+        <div>
+          <div class="date-nav-item border px-2 rounded-sm elevation-3 text-h6" @click="selectToday">Today</div>
+        </div>
+      </div>
       <div id="dateNavigator" class="d-flex justify-space-between align-center text-h4">
         <VIcon class="date-nav-item" icon="mdi-chevron-left" @click="dateNavigatorToPrev"></VIcon>
         <div class="d-flex py-2">
@@ -263,7 +326,7 @@ const reservedYears = computed(() => {
       </div>
       <div class="d-flex justify-center">
         <div class="border justify-center">
-          <div class="calendar-header" v-if="searchCondition.searchType === 'DAILY'">
+          <div class="calendar-header" v-show="searchCondition.searchType === 'DAILY'">
             <div class="text-h6 font-weight-bold">월</div>
             <div class="text-h6 font-weight-bold">화</div>
             <div class="text-h6 font-weight-bold">수</div>
@@ -278,7 +341,7 @@ const reservedYears = computed(() => {
                  v-for="(statistic, _, index) in result.questStatistics"
                  :key="statistic.loggedDate"
                  :class="{'selected-date': result.detail?.loggedDate === statistic.loggedDate }"
-                 @click="result.detail = statistic">
+                 @click="selectDetail(statistic)">
               <div class="text-end pt-2 pe-2 text-h5" v-if="searchCondition.searchType === 'DAILY'">
                 {{ dateUtil.getDateFromStr(statistic.loggedDate) }}
               </div>
@@ -290,6 +353,7 @@ const reservedYears = computed(() => {
                 }}월
               </div>
               <div>
+                <div>등록 : {{ statistic.registeredCount }}</div>
                 <div>완료 : {{ statistic.completeCount }}</div>
                 <div>완료율 : {{ statistic.stateRatio }}%</div>
               </div>
@@ -322,6 +386,8 @@ const reservedYears = computed(() => {
         <VRow>
           <VCol cols="6" class="border-e">
             <VRow>
+              <VCol cols="6">등록한 퀘스트</VCol>
+              <VCol cols="6">{{ result.detail.registeredCount }}</VCol>
               <VCol cols="6">완료한 퀘스트</VCol>
               <VCol cols="6">{{ result.detail.completeCount }}</VCol>
               <VCol cols="6">실패한 퀘스트</VCol>
@@ -415,7 +481,7 @@ const reservedYears = computed(() => {
   text-align: center;
 }
 
-#dateNavigator .date-nav-item:hover {
+.date-nav-item:hover {
   background-color: lightgrey;
   cursor: pointer;
 }

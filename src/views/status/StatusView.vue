@@ -3,7 +3,9 @@ import axios from 'axios'
 import { PRINCIPAL } from '@/stores/principal';
 import {computed, reactive, ref} from 'vue';
 import { API_URL } from '@/stores/api';
+import LoadingLayer from "@/components/common/LoadingLayer.vue";
 
+const statusLoading = ref(true)
 const tab = ref(null)
 
 const totalStatistics = reactive({
@@ -23,6 +25,7 @@ axios
         totalStatistics.completedCount = data.completedCount
         totalStatistics.discardedCount = data.discardedCount
         totalStatistics.failedCount = data.failedCount
+        statusLoading.value = false
       }
     })
 
@@ -43,6 +46,7 @@ axios
         <VRow>
             <VCol cols="12">
                 <div class="block">
+                  <LoadingLayer v-if="statusLoading"></LoadingLayer>
                     <div class="py-2">
                         <span class="font-weight-bold text-h5">{{ PRINCIPAL.nickname }}</span>
                         <span class="pl-3">LEVEL {{ PRINCIPAL.level }} (다음 레벨까지 {{ PRINCIPAL.requireExp - PRINCIPAL.currentExp }} EXP)</span>

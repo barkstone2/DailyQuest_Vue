@@ -4,10 +4,11 @@ import router from '../../router';
 import axios from 'axios'
 import {dto} from '@/stores/quest';
 import {API_URL} from '@/stores/api';
+import LoadingLayer from "@/components/common/LoadingLayer.vue";
 
 const content = reactive({
     list: [],
-    isLoading: false,
+    isLoading: true,
     state: 'PROCEED',
     panel: []
 })
@@ -16,6 +17,7 @@ dto.reset()
 getQuests(content.state)
 
 function getQuests(state) {
+    content.isLoading = true
     axios.get(`${ API_URL.QUEST_LIST_GET }?state=${state}`)
         .then((res) => {
             if (res) {
@@ -82,6 +84,7 @@ function changeStateTab() {
             </VTabs>
         </div>
         <VExpansionPanels v-model="content.panel" multiple variant="inset" class="align-center pb-2" style="min-width:400px;">
+          <LoadingLayer v-if="content.isLoading"></LoadingLayer>
             <div v-if="content.list.length === 0">등록된 퀘스트가 없습니다.</div>
             <VExpansionPanel v-for="(quest, qIndex) in content.list" :key="qIndex" :value="qIndex">
                 <VExpansionPanelTitle>
