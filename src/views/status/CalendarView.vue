@@ -106,7 +106,6 @@ function getFirstDayOfQuarter(year, quarter) {
   const firstDayOfQuarter = new Date(firstMondayOfYear.getTime())
   firstDayOfQuarter.setDate(firstMondayOfYear.getDate() + weeks * 7)
 
-  console.log(firstDayOfQuarter)
   return dateUtil.getDateStr(firstDayOfQuarter)
 }
 
