@@ -20,15 +20,17 @@ const dateUtil = {
     return date.getMonth() + 1 + '/' + date.getDate()
   },
   getDateStr(date) {
-    let resultStr = date.getFullYear() + "-"
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
 
-    if(date.getMonth() + 1 < 10) resultStr += '0'
-    resultStr += (date.getMonth() + 1) + "-"
+    return `${year}-${month}-${day}`;
+  },
+  getDateTimeStr(date) {
+    const hour = ("0" + date.getHours()).slice(-2);
+    const minute = ("0" + date.getMinutes()).slice(-2);
 
-    if(date.getDate() < 10) resultStr += '0'
-    resultStr += date.getDate()
-
-    return resultStr
+    return `${this.getDateStr(date)} ${hour}:${minute}`;
   }
 }
 
