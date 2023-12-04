@@ -4,6 +4,7 @@ import {computed, ref, reactive, watch} from 'vue';
 import {API_CONFIG, API_URL} from '@/stores/api';
 import dateUtil from '@/utils/dateUtil';
 import LoadingLayer from "@/components/common/LoadingLayer.vue";
+import QuestSearchResult from "@/components/search/QuestSearchResult.vue";
 
 const calendarLoading = ref(true)
 
@@ -20,6 +21,13 @@ const localDateOfToday = `${yyyy}-${mm}-${dd}`;
 const searchCondition = reactive({
   searchType: 'DAILY',
   selectedDate: localDateOfToday,
+})
+
+const searchResult = reactive({
+  list: [],
+  totalPages: 0,
+  requested: false,
+  opened: true
 })
 
 const watchedSearchType = computed(() => searchCondition.searchType)
@@ -42,6 +50,7 @@ const result = reactive({
 loadStatistics()
 
 function loadStatistics() {
+  searchResult.requested = false
   calendarLoading.value = true
 
   axios
@@ -157,6 +166,7 @@ watch(dateNavigator, (newValue) => {
 })
 
 function dateNavigatorYearSelection(year) {
+  selectListState.isOpenedYearSelectList = false
   switch (searchCondition.searchType) {
     case "WEEKLY":
       dateNavigator.selectedQuarterYear = year
@@ -231,6 +241,7 @@ const reservedYears = computed(() => {
 })
 
 function selectDetail(selectedDetail) {
+  searchResult.requested = false
   result.detail = selectedDetail
   selectedDateOfType[searchCondition.searchType] = selectedDetail.loggedDate
 }
@@ -259,6 +270,46 @@ function selectToday() {
   loadStatistics()
 }
 
+const page = ref(1)
+
+watch(page, () => {
+  searchCondition.page = page.value
+  searchQuest()
+})
+
+function sendSearchRequest() {
+  if(searchResult.requested) {
+    searchResult.opened = !searchResult.opened
+    return
+  }
+
+  searchCondition.page = 1
+  searchCondition.startDate = result.detail.loggedDate
+  searchCondition.endDate = result.detail.loggedDate
+
+  searchQuest()
+}
+
+function searchQuest() {
+  let queryString = `?`;
+  queryString += `page=${searchCondition.page-1}`
+  queryString += `&startDate=${searchCondition.startDate}`
+  queryString += `&endDate=${searchCondition.endDate}`
+
+  axios
+      .get(`${API_URL.QUEST_SEARCH}${queryString}`)
+      .then((res) => {
+        if (res) {
+          const data = res.data.data
+          searchResult.list = data.content
+          searchResult.totalPages = data.totalPages
+          searchResult.requested = true
+        }
+      })
+}
+
+
+
 </script>
 <template>
   <div class="block align-center justify-center no-drag">
@@ -286,7 +337,7 @@ function selectToday() {
               <template v-if="searchCondition.searchType === 'WEEKLY'">{{ dateNavigator.selectedQuarterYear }}</template>
               <template v-else>{{ dateNavigator.selectedYear }}</template>
             </div>
-            <div v-if="selectListState.isOpenedYearSelectList"
+            <div v-show="selectListState.isOpenedYearSelectList"
                 class="text-center position-absolute overflow-auto"
                  style="z-index:100; background-color:white; max-height:200px;">
               <template v-for="year in reservedYears" :key="(year)">
@@ -299,11 +350,14 @@ function selectToday() {
             <div class="date-nav-item border px-5 rounded-sm elevation-3"
                  @click="selectListState.isOpenedMonthSelectList = !selectListState.isOpenedMonthSelectList"
                  >{{ dateNavigator.selectedMonth < 10 ? '0' + dateNavigator.selectedMonth : dateNavigator.selectedMonth }}</div>
-            <div v-if="selectListState.isOpenedMonthSelectList"
+            <div v-show="selectListState.isOpenedMonthSelectList"
                 class="text-center position-absolute overflow-auto"
                  style="z-index:100; background-color:white; max-height:200px;">
               <template v-for="month in 12" :key="month">
-                <div class="date-nav-item border px-5 rounded-sm" @click="dateNavigator.selectedMonth = month">{{ month < 10 ? '0' + month : month }}</div>
+                <div class="date-nav-item border px-5 rounded-sm"
+                     @click="dateNavigator.selectedMonth = month; selectListState.isOpenedMonthSelectList = false">
+                  {{ month < 10 ? '0' + month : month }}
+                </div>
               </template>
             </div>
           </div>
@@ -311,16 +365,14 @@ function selectToday() {
             <div class="date-nav-item border px-5 rounded-sm elevation-3"
                  @click="selectListState.isOpenedQuarterSelectList = !selectListState.isOpenedQuarterSelectList"
             >{{ dateNavigator.selectedQuarter }}</div>
-            <div v-if="selectListState.isOpenedQuarterSelectList"
+            <div v-show="selectListState.isOpenedQuarterSelectList"
                  class="text-center position-absolute overflow-auto"
                  style="z-index:100; background-color:white; max-height:200px;">
               <template v-for="quarter in 4" :key="quarter">
-                <div class="date-nav-item border px-5 rounded-sm" @click="dateNavigator.selectedQuarter = quarter">{{ quarter }}</div>
+                <div class="date-nav-item border px-5 rounded-sm" @click="dateNavigator.selectedQuarter = quarter; selectListState.isOpenedQuarterSelectList = false">{{ quarter }}</div>
               </template>
             </div>
           </div>
-
-
         </div>
         <VIcon class="date-nav-item" icon="mdi-chevron-right" @click="dateNavigatorToNext"></VIcon>
       </div>
@@ -348,9 +400,8 @@ function selectToday() {
               <div class="text-start pt-2 ps-2 text-h6" v-else-if="searchCondition.searchType === 'WEEKLY'">
                 {{ dateUtil.getMonthWithDay(statistic.loggedDate) }} ~
               </div>
-              <div class="text-center pt-2 text-h5" v-else-if="searchCondition.searchType === 'MONTHLY'">{{
-                  index + 1
-                }}월
+              <div class="text-center pt-2 text-h5" v-else-if="searchCondition.searchType === 'MONTHLY'">
+                {{ index + 1 }}월
               </div>
               <div>
                 <div>등록 : {{ statistic.registeredCount }}</div>
@@ -369,9 +420,8 @@ function selectToday() {
               {{ dateUtil.getMonthWithDay(result.detail.loggedDate) }} ~
               {{ dateUtil.getSixDayAfter(result.detail.loggedDate) }}
             </div>
-            <div v-else-if="searchCondition.searchType === 'MONTHLY'">{{
-                dateUtil.getMonth(result.detail.loggedDate)
-              }}월
+            <div v-else-if="searchCondition.searchType === 'MONTHLY'">
+              {{ dateUtil.getMonth(result.detail.loggedDate) }}월
             </div>
           </VCol>
         </VRow>
@@ -383,7 +433,7 @@ function selectToday() {
             타입별
           </VCol>
         </VRow>
-        <VRow>
+        <VRow class="border-b">
           <VCol cols="6" class="border-e">
             <VRow>
               <VCol cols="6">등록한 퀘스트</VCol>
@@ -407,6 +457,23 @@ function selectToday() {
               <VCol cols="6">메인 퀘스트 비율</VCol>
               <VCol cols="6">{{ result.detail.typeRatio }}%</VCol>
             </VRow>
+          </VCol>
+        </VRow>
+        <VRow>
+          <VCol cols="12">
+            <div class="d-inline-block date-nav-item border px-2 rounded-sm elevation-3 text-h6"
+                 @click="sendSearchRequest"
+                 v-text="searchResult.requested && searchResult.opened ? '퀘스트 목록 닫기' : '퀘스트 목록 보기'"
+                 :class="searchResult.requested && searchResult.opened ? 'mb-3' : ''"
+            ></div>
+            <QuestSearchResult
+                v-if="searchResult.requested"
+                v-show="searchResult.opened"
+                :list="searchResult.list"
+                :total-pages="searchResult.totalPages"
+                :current-page="page"
+                @update:page="newValue => page = newValue"
+                empty-message="퀘스트 기록이 없습니다."/>
           </VCol>
         </VRow>
       </VContainer>
