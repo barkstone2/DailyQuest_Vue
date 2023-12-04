@@ -54,17 +54,6 @@ async function requestSettings() {
                     >
                     </VTextField>
                     <VSelect
-                        v-model="dto.resetTime"
-                        label="초기화 시간"
-                        class="mb-1"
-                        :items="hours()"
-                        :item-title="(item) => `${item}시`"
-                        :item-value="(item) => item"
-                        :readonly="!PRINCIPAL.canUpdateResetTime"
-                        :messages="!PRINCIPAL.canUpdateResetTime ? ['변경 후 24시간이 지나야 변경할 수 있어요.', `다음 변경까지 : ${PRINCIPAL.remainTimeUntilToUpdateResetTime}`] : ''"
-                    >
-                    </VSelect>
-                    <VSelect
                         v-model="dto.coreTime"
                         label="코어타임"
                         class="mb-1"

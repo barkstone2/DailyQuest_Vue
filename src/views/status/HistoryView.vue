@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { ref, reactive, watch, computed } from 'vue';
 import { API_URL } from '@/stores/api';
+import QuestSearchResult from "@/components/search/QuestSearchResult.vue";
 
 const keywordTypeItems = [
     { title: '전체', value: 'ALL' },
@@ -72,8 +73,8 @@ function sendSearchRequest() {
     searchCondition.state = searchRequest.state
     searchCondition.keywordType = searchRequest.keywordType
     searchCondition.keyword = searchRequest.keyword === null ? '' : searchRequest.keyword
-    searchCondition.startDate = searchRequest.startDate === null ? '' : searchRequest.startDate + ' 00:00:00'    
-    searchCondition.endDate = searchRequest.endDate === null ? '' : searchRequest.endDate + ' 00:00:00'    
+    searchCondition.startDate = searchRequest.startDate === null ? '' : searchRequest.startDate
+    searchCondition.endDate = searchRequest.endDate === null ? '' : searchRequest.endDate
 
     searchQuest()
 }
@@ -99,15 +100,6 @@ function searchQuest() {
         })
 }
 
-function formatDateString(dateStr) {
-    const split = dateStr.split('T')
-    return split[0] + ' ' + split[1]
-}
-
-function canCompleteQuest(quest) {
-    return quest.detailQuests.length === quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length
-}
-
 </script>
 
 <template>
@@ -126,79 +118,14 @@ function canCompleteQuest(quest) {
         <span style="height:58px;" class="d-flex align-center">~</span>
         <VTextField type="date" class="pl-1" v-model="searchRequest.endDate" clearable label="검색 종료일"></VTextField>
     </div>
-    
-    
-    <!-- 페이지 번호 클릭을 통한 페이징 처리 -->
-    <!-- 최근 순으로 모든 퀘스트를 표시 -->
-    
-    <div style="border-radius: 2px;" class="pa-1">
-        <div v-if="searchResult.list.length == 0">검색된 퀘스트가 없습니다.</div>
-        <VExpansionPanels v-else v-for="(quest, qIndex) in searchResult.list" :key="qIndex" :value="qIndex">
-            <VExpansionPanel>
-                <VExpansionPanelTitle>
-                    <VRow class="align-center">
-                        <VCol cols="8">
-                            <VRow>
-                                <VCol cols="12" class="pa-1">
-                                    <span class="ma-1 font-weight-bold">{{ '#' + quest.seq }}</span>
-                                    <VChip class="ma-1 font-weight-bold" label size="small" color="primary" v-if="quest.type === 'MAIN'">메인</VChip>
-                                    <VChip class="ma-1 font-weight-bold" label size="small" color="secondary" v-else>서브</VChip>
-                                    
-                                    <VChip class="ma-1 font-weight-bold" label size="small" color="indigo" v-if="quest.state === 'PROCEED'">진행중</VChip>
-                                    <VChip class="ma-1 font-weight-bold" label size="small" color="green" v-else-if="quest.state === 'COMPLETE'">완료</VChip>
-                                    <VChip class="ma-1 font-weight-bold" label size="small" v-else-if="quest.state === 'DISCARD'">포기</VChip>
-                                    <VChip class="ma-1 font-weight-bold" label size="small" color="red" v-else-if="quest.state === 'FAIL'">실패</VChip>
-                                </VCol>
-                                <VCol cols="12" class="pa-1">
-                                    <span class="ma-1 font-weight-bold">{{ quest.title }}</span>
-                                </VCol>
-                                <VCol cols="12" class="pa-1">
-                                    <VChip class="ma-1 font-weight-bold" label size="small" color="yellow-darken-4" v-if="!!quest.deadLine">마감기한 : {{ formatDateString(quest.deadLine) }}</VChip>
-                                </VCol>
-                            </VRow>
-                        </VCol>
-                        <VCol>
-                            <div>
-                                {{ formatDateString(quest.createdDate) }}
-                            </div>
-                        </VCol>
-                        <VCol cols="1">
-                            <VChip v-if="quest.detailQuests.length > 0" label :color="canCompleteQuest(quest) ? 'green' : ''">{{ quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length + '/' + quest.detailQuests.length }}</VChip>
-                        </VCol>
-                    </VRow>
-                </VExpansionPanelTitle>
-                <VExpansionPanelText>
-                    <div class="pb-2" style="white-space: pre-wrap;">{{ quest.description }}</div>
-                    <div v-for="(detail, dIndex) in quest.detailQuests" :key="dIndex">
-                        <VListItem active class="rounded ma-2">
-                            <VListItemTitle class="text-wrap">{{ detail.title }}</VListItemTitle>
-                            <template #append>
-                                <div style="height:40px; width:64px" class="d-flex align-center justify-center ps-2">
-                                    <VCheckboxBtn 
-                                        v-if="detail.type === 'CHECK'" 
-                                        :model-value="detail.state === 'COMPLETE'"
-                                        readonly
-                                        >
-                                    </VCheckboxBtn>
-                                    <VBtn 
-                                        v-if="detail.type === 'COUNT'"
-                                        rounded="lg" size="small"
-                                        class="my-1"
-                                        >
-                                        {{ detail.count + '/' + detail.targetCount }}
-                                    </VBtn>
-                                </div>
-                            </template>
-                        </VListItem>
-                    </div>
-                </VExpansionPanelText>
-            </VExpansionPanel>
-        </VExpansionPanels>
-        <VPagination v-if="searchResult.totalPages > 0" v-model="page" :length="searchResult.totalPages" :total-visible="6" :show-first-last-page=true></VPagination>
-    </div>
-    
 
-    
+  <QuestSearchResult
+      :list="searchResult.list"
+      :total-pages="searchResult.totalPages"
+      :current-page="page"
+      @update:page="newValue => page = newValue"
+      empty-message="검색된 퀘스트가 없습니다."/>
+
 </div>
 
 </template>
