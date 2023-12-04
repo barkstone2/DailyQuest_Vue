@@ -4,6 +4,7 @@ import {computed, ref, reactive, watch} from 'vue';
 import {API_CONFIG, API_URL} from '@/stores/api';
 import dateUtil from '@/utils/dateUtil';
 import LoadingLayer from "@/components/common/LoadingLayer.vue";
+import QuestSearchResult from "@/components/search/QuestSearchResult.vue";
 
 const calendarLoading = ref(true)
 
@@ -20,6 +21,13 @@ const localDateOfToday = `${yyyy}-${mm}-${dd}`;
 const searchCondition = reactive({
   searchType: 'DAILY',
   selectedDate: localDateOfToday,
+})
+
+const searchResult = reactive({
+  list: [],
+  totalPages: 0,
+  requested: false,
+  opened: true
 })
 
 const watchedSearchType = computed(() => searchCondition.searchType)
@@ -42,6 +50,7 @@ const result = reactive({
 loadStatistics()
 
 function loadStatistics() {
+  searchResult.requested = false
   calendarLoading.value = true
 
   axios
@@ -231,6 +240,7 @@ const reservedYears = computed(() => {
 })
 
 function selectDetail(selectedDetail) {
+  searchResult.requested = false
   result.detail = selectedDetail
   selectedDateOfType[searchCondition.searchType] = selectedDetail.loggedDate
 }
@@ -258,6 +268,46 @@ function selectToday() {
 
   loadStatistics()
 }
+
+const page = ref(1)
+
+watch(page, () => {
+  searchCondition.page = page.value
+  searchQuest()
+})
+
+function sendSearchRequest() {
+  if(searchResult.requested) {
+    searchResult.opened = !searchResult.opened
+    return
+  }
+
+  searchCondition.page = 1
+  searchCondition.startDate = result.detail.loggedDate
+  searchCondition.endDate = result.detail.loggedDate
+
+  searchQuest()
+}
+
+function searchQuest() {
+  let queryString = `?`;
+  queryString += `page=${searchCondition.page-1}`
+  queryString += `&startDate=${searchCondition.startDate}`
+  queryString += `&endDate=${searchCondition.endDate}`
+
+  axios
+      .get(`${API_URL.QUEST_SEARCH}${queryString}`)
+      .then((res) => {
+        if (res) {
+          const data = res.data.data
+          searchResult.list = data.content
+          searchResult.totalPages = data.totalPages
+          searchResult.requested = true
+        }
+      })
+}
+
+
 
 </script>
 <template>
@@ -383,7 +433,7 @@ function selectToday() {
             타입별
           </VCol>
         </VRow>
-        <VRow>
+        <VRow class="border-b">
           <VCol cols="6" class="border-e">
             <VRow>
               <VCol cols="6">등록한 퀘스트</VCol>
@@ -407,6 +457,23 @@ function selectToday() {
               <VCol cols="6">메인 퀘스트 비율</VCol>
               <VCol cols="6">{{ result.detail.typeRatio }}%</VCol>
             </VRow>
+          </VCol>
+        </VRow>
+        <VRow>
+          <VCol cols="12">
+            <div class="d-inline-block date-nav-item border px-2 rounded-sm elevation-3 text-h6"
+                 @click="sendSearchRequest"
+                 v-text="searchResult.requested && searchResult.opened ? '퀘스트 목록 닫기' : '퀘스트 목록 보기'"
+                 :class="searchResult.requested && searchResult.opened ? 'mb-3' : ''"
+            ></div>
+            <QuestSearchResult
+                v-if="searchResult.requested"
+                v-show="searchResult.opened"
+                :list="searchResult.list"
+                :total-pages="searchResult.totalPages"
+                :current-page="page"
+                @update:page="newValue => page = newValue"
+                empty-message="퀘스트 기록이 없습니다."/>
           </VCol>
         </VRow>
       </VContainer>
