@@ -30,7 +30,7 @@ function updatePrincipal(data) {
   PRINCIPAL.currentExp = data.currentExp
   PRINCIPAL.requireExp = data.requireExp
   PRINCIPAL.gold = data.gold
-  PRINCIPAL.resetTime = data.resetTime
+  PRINCIPAL.resetTime = 6
   PRINCIPAL.coreTime = data.coreTime
   PRINCIPAL.resetTimeLastModifiedDate = data.resetTimeLastModifiedDate
   PRINCIPAL.coreTimeLastModifiedDate = data.coreTimeLastModifiedDate
@@ -48,7 +48,7 @@ function updateSessionStorage() {
     currentExp: PRINCIPAL.currentExp,
     requireExp: PRINCIPAL.requireExp,
     gold: PRINCIPAL.gold,
-    resetTime: PRINCIPAL.resetTime,
+    resetTime: 6,
     coreTime: PRINCIPAL.coreTime,
     resetTimeLastModifiedDate: PRINCIPAL.resetTimeLastModifiedDate,
     coreTimeLastModifiedDate: PRINCIPAL.coreTimeLastModifiedDate
@@ -88,7 +88,7 @@ export const PRINCIPAL = reactive({
   currentExp: 0,
   requireExp: 0,
   gold: 0,
-  resetTime: 0,
+  resetTime: 6,
   coreTime: 0,
   resetTimeLastModifiedDate: null,
   coreTimeLastModifiedDate: null,
@@ -144,5 +144,6 @@ export const PRINCIPAL = reactive({
       nextResetTime.setDate(nextResetTime.getDate() + 1)
     }
     return nextResetTime
-  })
+  }),
+  resetTimeDelayMs: 9 * 60 * 1000
 })

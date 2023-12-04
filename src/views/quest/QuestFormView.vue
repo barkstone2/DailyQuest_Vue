@@ -77,11 +77,11 @@ async function requestQuest() {
                     v-model="dto.deadLine" 
                     label="마감기한"
                     type="datetime-local" 
-                    :min="formatDate(new Date(new Date().getTime() + 5 * 60 * 1000))" 
-                    :max="formatDate(PRINCIPAL.nextResetTime)"
+                    :min="formatDate(new Date(new Date().getTime() + PRINCIPAL.resetTimeDelayMs))"
+                    :max="formatDate(new Date(PRINCIPAL.nextResetTime.getTime() - PRINCIPAL.resetTimeDelayMs))"
                     :rules="[
-                        () => (!dto.deadLine || new Date(dto.deadLine).getTime() > new Date().getTime() + 5 * 60 * 1000) || '선택하지 않거나 현재 시간 + 5분 이후의 시간을 선택해야 합니다.',
-                        () => (!dto.deadLine || new Date(dto.deadLine).getTime() < PRINCIPAL.nextResetTime) || '선택하지 않거나 다음 초기화 시간보다 앞선 시간을 선택해야 합니다. 다음 초기화 시간 : ' + dateUtil.getDateTimeStr(PRINCIPAL.nextResetTime)
+                        () => (!dto.deadLine || new Date(dto.deadLine).getTime() > new Date().getTime() + PRINCIPAL.resetTimeDelayMs) || '선택하지 않거나 현재 시간 + 10분 이후의 시간을 선택해야 합니다.',
+                        () => (!dto.deadLine || new Date(dto.deadLine).getTime() < PRINCIPAL.nextResetTime.getTime() - PRINCIPAL.resetTimeDelayMs) || '선택하지 않거나 다음 초기화 시간보다 10분 앞선 시간을 선택해야 합니다. 다음 초기화 시간 : ' + dateUtil.getDateTimeStr(PRINCIPAL.nextResetTime)
                     ]"
                 >
                 </VTextField>
