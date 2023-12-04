@@ -166,6 +166,7 @@ watch(dateNavigator, (newValue) => {
 })
 
 function dateNavigatorYearSelection(year) {
+  selectListState.isOpenedYearSelectList = false
   switch (searchCondition.searchType) {
     case "WEEKLY":
       dateNavigator.selectedQuarterYear = year
@@ -336,7 +337,7 @@ function searchQuest() {
               <template v-if="searchCondition.searchType === 'WEEKLY'">{{ dateNavigator.selectedQuarterYear }}</template>
               <template v-else>{{ dateNavigator.selectedYear }}</template>
             </div>
-            <div v-if="selectListState.isOpenedYearSelectList"
+            <div v-show="selectListState.isOpenedYearSelectList"
                 class="text-center position-absolute overflow-auto"
                  style="z-index:100; background-color:white; max-height:200px;">
               <template v-for="year in reservedYears" :key="(year)">
@@ -349,11 +350,14 @@ function searchQuest() {
             <div class="date-nav-item border px-5 rounded-sm elevation-3"
                  @click="selectListState.isOpenedMonthSelectList = !selectListState.isOpenedMonthSelectList"
                  >{{ dateNavigator.selectedMonth < 10 ? '0' + dateNavigator.selectedMonth : dateNavigator.selectedMonth }}</div>
-            <div v-if="selectListState.isOpenedMonthSelectList"
+            <div v-show="selectListState.isOpenedMonthSelectList"
                 class="text-center position-absolute overflow-auto"
                  style="z-index:100; background-color:white; max-height:200px;">
               <template v-for="month in 12" :key="month">
-                <div class="date-nav-item border px-5 rounded-sm" @click="dateNavigator.selectedMonth = month">{{ month < 10 ? '0' + month : month }}</div>
+                <div class="date-nav-item border px-5 rounded-sm"
+                     @click="dateNavigator.selectedMonth = month; selectListState.isOpenedMonthSelectList = false">
+                  {{ month < 10 ? '0' + month : month }}
+                </div>
               </template>
             </div>
           </div>
@@ -361,16 +365,14 @@ function searchQuest() {
             <div class="date-nav-item border px-5 rounded-sm elevation-3"
                  @click="selectListState.isOpenedQuarterSelectList = !selectListState.isOpenedQuarterSelectList"
             >{{ dateNavigator.selectedQuarter }}</div>
-            <div v-if="selectListState.isOpenedQuarterSelectList"
+            <div v-show="selectListState.isOpenedQuarterSelectList"
                  class="text-center position-absolute overflow-auto"
                  style="z-index:100; background-color:white; max-height:200px;">
               <template v-for="quarter in 4" :key="quarter">
-                <div class="date-nav-item border px-5 rounded-sm" @click="dateNavigator.selectedQuarter = quarter">{{ quarter }}</div>
+                <div class="date-nav-item border px-5 rounded-sm" @click="dateNavigator.selectedQuarter = quarter; selectListState.isOpenedQuarterSelectList = false">{{ quarter }}</div>
               </template>
             </div>
           </div>
-
-
         </div>
         <VIcon class="date-nav-item" icon="mdi-chevron-right" @click="dateNavigatorToNext"></VIcon>
       </div>
@@ -398,9 +400,8 @@ function searchQuest() {
               <div class="text-start pt-2 ps-2 text-h6" v-else-if="searchCondition.searchType === 'WEEKLY'">
                 {{ dateUtil.getMonthWithDay(statistic.loggedDate) }} ~
               </div>
-              <div class="text-center pt-2 text-h5" v-else-if="searchCondition.searchType === 'MONTHLY'">{{
-                  index + 1
-                }}월
+              <div class="text-center pt-2 text-h5" v-else-if="searchCondition.searchType === 'MONTHLY'">
+                {{ index + 1 }}월
               </div>
               <div>
                 <div>등록 : {{ statistic.registeredCount }}</div>
@@ -419,9 +420,8 @@ function searchQuest() {
               {{ dateUtil.getMonthWithDay(result.detail.loggedDate) }} ~
               {{ dateUtil.getSixDayAfter(result.detail.loggedDate) }}
             </div>
-            <div v-else-if="searchCondition.searchType === 'MONTHLY'">{{
-                dateUtil.getMonth(result.detail.loggedDate)
-              }}월
+            <div v-else-if="searchCondition.searchType === 'MONTHLY'">
+              {{ dateUtil.getMonth(result.detail.loggedDate) }}월
             </div>
           </VCol>
         </VRow>
