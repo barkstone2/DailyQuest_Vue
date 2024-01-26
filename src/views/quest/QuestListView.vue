@@ -41,10 +41,11 @@ function interactDetailQuest(questId, detailId, questIndex, detailIndex, data = 
     
     axios.patch(API_URL.QUEST_DETAIL_UPDATE(questId, detailId), data)
         .then((res) => {
+          if(res) {
             const data = res.data.data
             content.list[questIndex].canComplete = data.canCompleteParent
             content.list[questIndex].detailQuests[detailIndex] = data
-
+          }
         })
 }
 
