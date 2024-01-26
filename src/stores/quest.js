@@ -6,6 +6,7 @@ export const dto = reactive({
   deadLine: '',
   details: [],
   submitting: false,
+  isLoading: false,
   reset() {
     this.id = null
     this.title = ''
