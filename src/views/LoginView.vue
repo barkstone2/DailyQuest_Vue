@@ -17,10 +17,12 @@ function onLoginSuccess(response) {
             "idToken": googleIdToken,
             "providerType": "GOOGLE"
         }
-    ).then(function () {
+    ).then((tokenResponse) => {
+      if(tokenResponse) {
         PRINCIPAL.synchronize().then(() => {
-            router.push(MENU.redirectRoute)
+          router.push(MENU.redirectRoute)
         })
+      }
     })
 }
 

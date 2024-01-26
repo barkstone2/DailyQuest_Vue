@@ -5,7 +5,6 @@ export const dto = reactive({
   description: '',
   deadLine: '',
   details: [],
-  submitting: false,
   isLoading: false,
   reset() {
     this.id = null
