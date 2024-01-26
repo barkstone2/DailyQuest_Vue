@@ -32,6 +32,7 @@ export const API_URL = {
   QUEST_PREFIX: '/quests',
   QUEST_LIST_GET: QUEST_PREFIX,
   QUEST_SAVE: QUEST_PREFIX,
+  QUEST_INFO: (questId) => `${QUEST_PREFIX}/${questId}`,
   QUEST_UPDATE: (questId) => `${QUEST_PREFIX}/${questId}`,
   QUEST_DETAIL_UPDATE: (questId, detailId) => `${QUEST_PREFIX}/${questId}/details/${detailId}`,
   QUEST_COMPLETE: (questId) => `${QUEST_PREFIX}/${questId}/complete`,

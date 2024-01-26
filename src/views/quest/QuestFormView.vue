@@ -6,6 +6,20 @@ import router from '@/router';
 import { dto } from '@/stores/quest';
 import {PRINCIPAL} from "@/stores/principal";
 import dateUtil from "@/utils/dateUtil";
+getQuest();
+
+function getQuest() {
+  let routerValue = router.currentRoute.value;
+  if(routerValue.name === 'questUpdate' && dto.id === null) {
+    axios.get(`${ API_URL.QUEST_INFO(routerValue.params['questId']) }`)
+        .then((res) => {
+          if (res) {
+            dto.set(res.data.data)
+          }
+        }).finally(() => {
+        })
+  }
+}
 
 function appendDetailRow() {
     dto.details.push({
@@ -36,14 +50,15 @@ async function requestQuest() {
             axios.patch(API_URL.QUEST_UPDATE(dto.id), dto)
                 .then(() => {
                     router.push('/quests')
+                    dto.submitting = false
                 })
         } else {
             axios.post(API_URL.QUEST_SAVE, dto)
                 .then(() => {
                     router.push('/quests')
+                    dto.submitting = false
                 })
         }
-        
     }
 }
 
