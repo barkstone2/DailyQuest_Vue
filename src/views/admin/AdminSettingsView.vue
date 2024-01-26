@@ -9,14 +9,12 @@ const form = ref(null)
 async function requestSettings() {
 
     const { valid } = await form.value.validate()
-    if (valid && !admin.submitting) {
-        admin.submitting = true
-        axios.put(API_URL.ADMIN_SETTING_UPDATE, admin.settings, {
-            baseURL: admin.baseURL
-        })
-            .then(() => {
+    if (valid) {
+        axios.put(API_URL.ADMIN_SETTING_UPDATE, admin.settings, {baseURL: admin.baseURL})
+            .then((res) => {
+              if(res) {
                 alert('변경 완료')
-                admin.submitting = false
+              }
             })
     }
 }
