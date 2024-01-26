@@ -42,7 +42,6 @@ export const admin = reactive({
     maxRewardCount: 0
   },
   expTable: {},
-  submitting: false,
   isLastLevel(level) {
     return level === lastLevel.value
   },
