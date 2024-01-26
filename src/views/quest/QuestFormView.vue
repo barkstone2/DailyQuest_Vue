@@ -6,17 +6,21 @@ import router from '@/router';
 import { dto } from '@/stores/quest';
 import {PRINCIPAL} from "@/stores/principal";
 import dateUtil from "@/utils/dateUtil";
+import LoadingLayer from "@/components/common/LoadingLayer.vue";
+
 getQuest();
 
 function getQuest() {
   let routerValue = router.currentRoute.value;
   if(routerValue.name === 'questUpdate' && dto.id === null) {
+    dto.isLoading = true
     axios.get(`${ API_URL.QUEST_INFO(routerValue.params['questId']) }`)
         .then((res) => {
           if (res) {
             dto.set(res.data.data)
           }
         }).finally(() => {
+          dto.isLoading = false
         })
   }
 }
@@ -68,7 +72,8 @@ async function requestQuest() {
     <VContainer class="w-75 h-75">
         <div class="d-flex justify-center">
             <VForm class="w-50" style="min-width:400px" fast-fail @submit.prevent ref="form">
-                <VTextField clearable 
+                <LoadingLayer v-if="dto.isLoading"></LoadingLayer>
+                <VTextField clearable
                     class="mb-1"
                     v-model="dto.title" 
                     label="퀘스트 제목" 
