@@ -4,9 +4,10 @@ import { PRINCIPAL } from '@/stores/principal';
 import {computed, reactive, ref} from 'vue';
 import { API_URL } from '@/stores/api';
 import LoadingLayer from "@/components/common/LoadingLayer.vue";
+import router from "@/router";
 
 const statusLoading = ref(true)
-const tab = ref(null)
+const tab = computed(() => router.currentRoute.value.name)
 
 const totalStatistics = reactive({
   registeredCount: 0,
