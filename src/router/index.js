@@ -67,6 +67,12 @@ const statusRoutes = [
         path: 'history',
         meta: statusMeta,
         component: () => import('../views/status/HistoryView.vue')
+      },
+      {
+        name: 'achievements',
+        path: 'achievements',
+        meta: statusMeta,
+        component: () => import('@/views/achievement/AchievementListView.vue')
       }
     ]
   },

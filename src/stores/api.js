@@ -24,6 +24,7 @@ export const API_URL = {
   ADMIN_SETTING_UPDATE: '/reward',
   ADMIN_EXP_TABLE_GET: '/exp-table',
   ADMIN_EXP_TABLE_UPDATE: '/exp-table',
+  ADMIN_ACHIEVEMENT_LIST: '/achievements',
   QUEST_PREFIX: '/quests',
   QUEST_LIST_GET: QUEST_PREFIX,
   QUEST_SAVE: QUEST_PREFIX,
@@ -33,5 +34,9 @@ export const API_URL = {
   QUEST_DISCARD: (questId) => `${QUEST_PREFIX}/${questId}/discard`,
   QUEST_DELETE: (questId) => `${QUEST_PREFIX}/${questId}/delete`,
   QUEST_SEARCH: `${QUEST_PREFIX}/search`,
-  STATUS: '/status'
+  STATUS: '/status',
+  ACHIEVEMENT: {
+    ACHIEVED_LIST: '/achievements/achieved',
+    NOT_ACHIEVED_LIST: '/achievements/not-achieved',
+  },
 }
