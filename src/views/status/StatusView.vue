@@ -83,6 +83,9 @@ axios
                         <RouterLink to="/status/history" style="color: black;">
                             <VTab value="quest-history">퀘스트 기록</VTab>
                         </RouterLink>
+                        <RouterLink to="/status/achievements" style="color: black;">
+                          <VTab value="achievements">업적</VTab>
+                        </RouterLink>
                     </VTabs>
                 </div>
             </VCol>
