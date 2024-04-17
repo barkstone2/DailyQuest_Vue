@@ -70,6 +70,14 @@ watch(selectedTab, () => {
   </VTabs>
   <VList>
     <LoadingLayer v-if="content.isLoading"></LoadingLayer>
+    <VListItem>
+      <VRow align="center">
+        <VCol cols="9">업적</VCol>
+        <VCol v-if="selectedTab === 'ACHIEVED'">달성일</VCol>
+        <VCol v-else>달성 조건</VCol>
+      </VRow>
+    </VListItem>
+    <VDivider/>
     <VListItem v-for="(achievement, index) in content.list" :key="index">
       <VRow align="center">
         <VCol cols="9">
@@ -78,18 +86,18 @@ watch(selectedTab, () => {
         </VCol>
         <VCol v-if="selectedTab === 'ACHIEVED'">
           <div>
-            달성일 : {{ achievement.achievedDate }}
+            {{ achievement.achievedDate }}
           </div>
         </VCol>
         <VCol v-else>
           <div>
-            달성 조건 : {{ achievement.targetMessage }}
+            {{ achievement.targetMessage }}
           </div>
         </VCol>
       </VRow>
       <VDivider/>
     </VListItem>
   </VList>
-  <VPagination v-if="content.totalPages > 0" v-model="content.page" @click="getAchievements" :length="content.totalPages" :total-visible="6" :show-first-last-page=true></VPagination>
+  <VPagination v-if="content.totalPages > 0" v-model="content.page" @click="getAchievements" :length="content.totalPages" :total-visible="8" :show-first-last-page=true></VPagination>
 </div>
 </template>
