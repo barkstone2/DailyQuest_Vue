@@ -27,12 +27,12 @@ function getExpTable() {
     .then((res) => {
       if (res) {
         admin.expTable = res.data.data
-        lastLevel.value = Object.keys(admin.expTable).length
+        lastLevel.value = Object.keys(admin.expTable).length.toString()
       }
     })
 }
 
-const lastLevel = ref(1)
+const lastLevel = ref("1")
 
 export const admin = reactive({
   baseURL: API_CONFIG.ADMIN_SERVER_URL,
