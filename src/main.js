@@ -12,14 +12,8 @@ import { PRINCIPAL } from '@/stores/principal'
 import { MENU } from '@/stores/menu'
 import {API_CONFIG} from "@/stores/api";
 
-if(!API_CONFIG.SERVER_ERROR) {
-  // 현재 사용자 정보가 없을 때 동기화 시도. 실패 시 로그인 화면으로 이동
-  if (!PRINCIPAL.id) {
-    PRINCIPAL.synchronize()
-  }
-}
-router.beforeEach((to, from) => {
-  if(API_CONFIG.SERVER_ERROR) return
+// 페이지 로드 시 사용자 정보 동기화
+await PRINCIPAL.synchronize()
 
   // 로그인 페이지에서 다시 로그인 페이지로 이동하는 경우
   if (from.path === '/login' && to.path === '/login') {
