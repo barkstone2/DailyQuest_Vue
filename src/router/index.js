@@ -90,15 +90,21 @@ const adminRoutes = [
     children: [
       {
         path: '',
-        name: 'adminSettings',
+        name: 'system',
         meta: adminMeta,
         component: () => import('../views/admin/AdminSettingsView.vue')
       },
       {
         path: 'exp-table',
-        name: 'expTable',
+        name: 'exp-table',
         meta: adminMeta,
         component: () => import('../views/admin/AdminExpTableView.vue')
+      },
+      {
+        name: 'admin-achievements',
+        path: 'achievements',
+        meta: adminMeta,
+        component: () => import('@/views/achievement/AdminAchievementListView.vue')
       }
     ]
   }
