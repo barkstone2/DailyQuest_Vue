@@ -79,6 +79,14 @@ function calcRemainTimeUntilToUpdate(compareDate) {
   return `${hours}시간 ${minutes}분`
 }
 
+function sseConnect() {
+  const url = "http://localhost:8080/api/v1/sse";
+  const sse = new EventSource(url, { withCredentials: true })
+  sse.addEventListener('notification', () => {
+    PRINCIPAL.hasNewNotification = true
+  });
+}
+
 export const PRINCIPAL = reactive({
   id: null,
   nickname: '',
@@ -107,6 +115,7 @@ export const PRINCIPAL = reactive({
   remainTimeUntilToUpdateResetTime: computed(() => {
     return calcRemainTimeUntilToUpdate(PRINCIPAL.resetTimeLastModifiedDate)
   }),
+  hasNewNotification: false,
   invalidate() {
     this.id = null
     sessionStorage.removeItem(SESSION_STORAGE_KEY)
@@ -132,6 +141,7 @@ export const PRINCIPAL = reactive({
             }
           })
     }
+    sseConnect()
   },
   getExpText() {
     const ratio = (this.currentExp / this.requireExp) * 100
