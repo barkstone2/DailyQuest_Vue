@@ -4,7 +4,6 @@ import { admin } from '@/stores/admin';
 
 const tab = ref(null)
 admin.getSettings()
-admin.getExpTable()
 
 </script>
 
