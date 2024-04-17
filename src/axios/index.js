@@ -30,11 +30,11 @@ axios.interceptors.response.use(
     if(error.code === 'ERR_NETWORK') {
       API_CONFIG.SERVER_ERROR = true
       PRINCIPAL.invalidate()
-      if(error.config.url === '') return Promise.reject(error)
       router.push('/error')
       return
     }
 
+    API_CONFIG.SERVER_ERROR = false
 
     if(axios.isCancel(error)) {
       alert('요청 처리 중입니다. 잠시 후 다시 시도해주세요.')
