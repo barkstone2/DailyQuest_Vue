@@ -1,8 +1,9 @@
 <script setup>
-import { ref } from 'vue';
+import {computed} from 'vue';
 import { admin } from '@/stores/admin';
+import router from "@/router";
 
-const tab = ref(null)
+const tab = computed(() => router.currentRoute.value.name)
 admin.getSettings()
 
 </script>
