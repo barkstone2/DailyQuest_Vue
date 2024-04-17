@@ -39,4 +39,12 @@ export const API_URL = {
     ACHIEVED_LIST: '/achievements/achieved',
     NOT_ACHIEVED_LIST: '/achievements/not-achieved',
   },
+  NOTIFICATION: {
+    NOT_CONFIRMED_LIST: '/notifications/not-confirmed',
+    ALL_LIST: '/notifications',
+    CONFIRM_ALL: '/notifications/confirm-all',
+    DELETE_ALL: '/notifications/delete-all',
+    CONFIRM: (notificationId) => `/notifications/${notificationId}/confirm`,
+    DELETE: (notificationId) => `/notifications/${notificationId}/delete`,
+  }
 }
