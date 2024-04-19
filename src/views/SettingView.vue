@@ -30,7 +30,7 @@ async function requestSettings() {
         axios.patch(API_URL.USER_UPDATE, dto)
             .then(() => {
                 // 유저정보 업데이트
-                PRINCIPAL.synchronize(true).then(() => {
+                PRINCIPAL.synchronize().then(() => {
                     alert('변경 완료')
                 })
             })

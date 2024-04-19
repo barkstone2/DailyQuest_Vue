@@ -126,21 +126,14 @@ export const PRINCIPAL = reactive({
       router.push('/login')
     })
   },
-  async synchronize(force = false) {
-    // 세션 저장소에 사용자 정보가 존재하는 경우 현재 사용자 정보로 사용
-    if (hasPrincipalOnSessionStorage() && !force) {
-      const principal = getPrincipalFromLocalStorage();
-      updatePrincipal(principal)
-    } else {
-      // 사용자 정보가 세션 저장소에 없으면 서버에 요청
-      await axios.get(API_URL.USER_GET)
-          .then((res) => {
-            if (res) {
-              const data = res.data.data
-              updatePrincipal(data)
-            }
-          })
-    }
+  async synchronize() {
+    await axios.get(API_URL.USER_GET)
+        .then((res) => {
+          if (res) {
+            const data = res.data.data
+            updatePrincipal(data)
+          }
+        })
     sseConnect()
   },
   getExpText() {
