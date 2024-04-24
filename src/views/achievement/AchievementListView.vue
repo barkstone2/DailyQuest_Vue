@@ -65,8 +65,8 @@ watch(selectedTab, () => {
 <div class="block">
   <VTabs bg-color="white" color="black" v-model="selectedTab" hide-slider align-tabs="center"
          selected-class="selected-tab" class="ma-2 w-fit rounded-lg border">
-    <VTab value="ACHIEVED">달성한 업적</VTab>
-    <VTab value="NOT_ACHIEVED">달성하지 못한 업적</VTab>
+    <VTab value="ACHIEVED" rounded>달성한 업적</VTab>
+    <VTab value="NOT_ACHIEVED" rounded>달성하지 못한 업적</VTab>
   </VTabs>
   <VList>
     <LoadingLayer v-if="content.isLoading"></LoadingLayer>

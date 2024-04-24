@@ -318,9 +318,9 @@ function searchQuest() {
       <div class="d-flex align-center justify-space-between">
         <VTabs bg-color="white" color="black" v-model="searchCondition.searchType" hide-slider align-tabs="center"
                selected-class="selected-tab" class="my-2 w-fit rounded-lg border">
-          <VTab value="DAILY">일간</VTab>
-          <VTab value="WEEKLY">주간</VTab>
-          <VTab value="MONTHLY">월간</VTab>
+          <VTab value="DAILY" rounded>일간</VTab>
+          <VTab value="WEEKLY" rounded>주간</VTab>
+          <VTab value="MONTHLY" rounded>월간</VTab>
           <!-- <VTab value="YEARLY" @click="changeStateTab">연간</VTab> -->
         </VTabs>
         <div>

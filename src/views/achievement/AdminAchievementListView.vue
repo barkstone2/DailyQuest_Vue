@@ -138,7 +138,7 @@ const state = {
       <VTabs bg-color="white" color="black" v-model="selectedType" hide-slider show-arrows align-tabs="center"
              selected-class="selected-tab" class="ma-2 w-fit rounded-lg border">
         <template v-for="(type, index) in content.types" :key="index">
-          <VTab :value="type.key">{{ type.displayName }}</VTab>
+          <VTab :value="type.key" rounded>{{ type.displayName }}</VTab>
         </template>
       </VTabs>
     </div>
@@ -291,5 +291,3 @@ const state = {
     <VBtn icon="mdi-plus" size="small" @click="save.openDialog()" />
   </div>
 </template>
-<style scoped>
-</style>

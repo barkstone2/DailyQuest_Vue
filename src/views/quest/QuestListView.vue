@@ -78,10 +78,10 @@ function changeStateTab() {
     <VContainer class="w-33 h-75" id="test" style="min-width:min-content; margin-top:100px;">
         <div class="d-flex justify-center">
             <VTabs bg-color="white" color="black" v-model="content.state" hide-slider align-tabs="center" selected-class="selected-tab" class="ma-2 w-fit rounded">
-                <VTab value="PROCEED" @click="changeStateTab">진행</VTab>
-                <VTab value="COMPLETE" @click="changeStateTab">완료</VTab>
-                <VTab value="DISCARD" @click="changeStateTab">포기</VTab>
-                <VTab value="FAIL" @click="changeStateTab">실패</VTab>
+                <VTab value="PROCEED" @click="changeStateTab" rounded>진행</VTab>
+                <VTab value="COMPLETE" @click="changeStateTab" rounded>완료</VTab>
+                <VTab value="DISCARD" @click="changeStateTab" rounded>포기</VTab>
+                <VTab value="FAIL" @click="changeStateTab" rounded>실패</VTab>
             </VTabs>
         </div>
         <VExpansionPanels v-model="content.panel" multiple variant="inset" class="align-center pb-2" style="min-width:400px;">
@@ -159,9 +159,3 @@ function changeStateTab() {
         <VBtn icon="mdi-plus" size="small"/>
     </RouterLink>
 </template>
-
-<style>
-.selected-tab {
-    background-color: lightgray;
-}
-</style>
