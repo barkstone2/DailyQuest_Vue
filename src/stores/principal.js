@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { computed, reactive, ref } from 'vue'
 import router from '@/router'
-import {API_URL} from '@/stores/api'
+import {API_CONFIG, API_URL} from '@/stores/api'
 
 const ENV = import.meta.env
 const SESSION_STORAGE_KEY = ENV.VITE_SESSION_STORAGE_KEY
@@ -80,7 +80,7 @@ function calcRemainTimeUntilToUpdate(compareDate) {
 }
 
 function sseConnect() {
-  const url = "http://localhost:8080/api/v1/sse";
+  const url = `${API_CONFIG.SERVER_URL}${API_URL.SSE_CONNECT}`;
   const sse = new EventSource(url, { withCredentials: true })
   sse.addEventListener('notification', () => {
     PRINCIPAL.hasNewNotification = true

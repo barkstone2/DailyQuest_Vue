@@ -51,5 +51,6 @@ export const API_URL = {
     DELETE_ALL: '/notifications/delete-all',
     CONFIRM: (notificationId) => `/notifications/${notificationId}/confirm`,
     DELETE: (notificationId) => `/notifications/${notificationId}/delete`,
-  }
+  },
+  SSE_CONNECT: '/sse'
 }
