@@ -27,6 +27,7 @@ function updatePrincipal(data) {
   PRINCIPAL.coreTimeHour = data.coreTimeHour
   PRINCIPAL.resetTimeLastModifiedDate = data.resetTimeLastModifiedDate
   PRINCIPAL.coreTimeLastModifiedDate = data.coreTimeLastModifiedDate
+  PRINCIPAL.notificationCount = data.notificationCount
 }
 
 function isBeforeOneDayFromNowOrIsNull(compareDate) {
@@ -87,10 +88,11 @@ export const PRINCIPAL = reactive({
     this.id = null
   },
   logout() {
-    axios.post(API_URL.TOKEN_INVALIDATE).then(() => {
-      this.invalidate()
-      router.push('/login')
-    })
+    axios.post(API_URL.TOKEN_INVALIDATE)
+      .then(() => {
+        this.invalidate()
+        router.push('/login')
+      })
   },
   async synchronize() {
     await axios.get(API_URL.USER_GET)

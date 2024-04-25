@@ -42,13 +42,13 @@ const openNotification = () => {
             </VListItem>
           <VDivider></VDivider>
             <div class="d-flex justify-space-around pa-2">
-              <BadgeIcon :need-badge="PRINCIPAL.hasNewNotification">
-                <VIcon icon="mdi-bell-outline" @click="openNotification"/>
+              <BadgeIcon :need-badge="PRINCIPAL.notificationCount > 0" :count="PRINCIPAL.notificationCount" class="pa-1 cursor-pointer" @click="openNotification">
+                <VIcon icon="mdi-bell-outline"/>
               </BadgeIcon>
-              <BadgeIcon class="d-none">
+              <BadgeIcon class="d-none pa-1">
                 <VIcon icon="mdi-email-outline"></VIcon>
               </BadgeIcon>
-              <BadgeIcon class="d-none">
+              <BadgeIcon class="d-none pa-1">
                 <VIcon icon="mdi-chat-outline"></VIcon>
               </BadgeIcon>
             </div>
