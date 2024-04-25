@@ -3,9 +3,6 @@ import { computed, reactive, ref } from 'vue'
 import router from '@/router'
 import {API_CONFIG, API_URL} from '@/stores/api'
 
-const ENV = import.meta.env
-const SESSION_STORAGE_KEY = ENV.VITE_SESSION_STORAGE_KEY
-
 const nowDate = new Date()
 nowDate.setSeconds(0)
 
@@ -16,10 +13,6 @@ setInterval(() => {
   nowDate.setSeconds(0)
   now.value = nowDate
 }, 60 * 1000)
-
-function hasPrincipalOnSessionStorage() {
-  return !!sessionStorage.getItem(SESSION_STORAGE_KEY)
-}
 
 function updatePrincipal(data) {
   PRINCIPAL.id = data.id
@@ -34,32 +27,6 @@ function updatePrincipal(data) {
   PRINCIPAL.coreTimeHour = data.coreTimeHour
   PRINCIPAL.resetTimeLastModifiedDate = data.resetTimeLastModifiedDate
   PRINCIPAL.coreTimeLastModifiedDate = data.coreTimeLastModifiedDate
-
-  updateSessionStorage()
-}
-
-function updateSessionStorage() {
-  const newPrincipal = {
-    id: PRINCIPAL.id,
-    nickname: PRINCIPAL.nickname,
-    providerType: PRINCIPAL.providerType,
-    authorities: PRINCIPAL.authorities,
-    level: PRINCIPAL.level,
-    currentExp: PRINCIPAL.currentExp,
-    requireExp: PRINCIPAL.requireExp,
-    gold: PRINCIPAL.gold,
-    resetTime: 6,
-    coreTime: PRINCIPAL.coreTime,
-    resetTimeLastModifiedDate: PRINCIPAL.resetTimeLastModifiedDate,
-    coreTimeLastModifiedDate: PRINCIPAL.coreTimeLastModifiedDate
-  }
-
-  sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(newPrincipal))
-}
-
-function getPrincipalFromLocalStorage() {
-  const json = sessionStorage.getItem(SESSION_STORAGE_KEY)
-  return JSON.parse(json)
 }
 
 function isBeforeOneDayFromNowOrIsNull(compareDate) {
@@ -118,7 +85,6 @@ export const PRINCIPAL = reactive({
   hasNewNotification: false,
   invalidate() {
     this.id = null
-    sessionStorage.removeItem(SESSION_STORAGE_KEY)
   },
   logout() {
     axios.post(API_URL.TOKEN_INVALIDATE).then(() => {
