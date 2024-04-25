@@ -20,10 +20,12 @@ export const dto = reactive({
     this.deadLine = quest.deadLine
     this.details = quest.detailQuests.map((detail) => {
       return {
+        id: detail.id,
         title: detail.title,
         description: detail.description,
         type: detail.type,
-        targetCount: detail.targetCount
+        targetCount: detail.targetCount,
+        count: detail.count
       }
     })
   }

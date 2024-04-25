@@ -26,11 +26,13 @@ function getQuest() {
 }
 
 function appendDetailRow() {
-    dto.details.push({
-        title: '',
-        type: 'CHECK',
-        targetCount: 1,
-    })
+  dto.details.push({
+    id: 0,
+    title: '',
+    type: 'CHECK',
+    targetCount: 1,
+    count: 0,
+  });
 }
 
 function formatDate(date) {
