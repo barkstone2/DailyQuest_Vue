@@ -31,7 +31,7 @@ function updatePrincipal(data) {
   PRINCIPAL.requireExp = data.requireExp
   PRINCIPAL.gold = data.gold
   PRINCIPAL.resetTime = 6
-  PRINCIPAL.coreTime = data.coreTime
+  PRINCIPAL.coreTimeHour = data.coreTimeHour
   PRINCIPAL.resetTimeLastModifiedDate = data.resetTimeLastModifiedDate
   PRINCIPAL.coreTimeLastModifiedDate = data.coreTimeLastModifiedDate
 
@@ -97,7 +97,7 @@ export const PRINCIPAL = reactive({
   requireExp: 0,
   gold: 0,
   resetTime: 6,
-  coreTime: 0,
+  coreTimeHour: 0,
   resetTimeLastModifiedDate: null,
   coreTimeLastModifiedDate: null,
   isAdmin: computed(() => {
