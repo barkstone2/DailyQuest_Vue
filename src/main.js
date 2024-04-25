@@ -12,9 +12,6 @@ import { PRINCIPAL } from '@/stores/principal'
 import { MENU } from '@/stores/menu'
 import {API_CONFIG} from "@/stores/api";
 
-// 페이지 로드 시 사용자 정보 동기화
-await PRINCIPAL.synchronize()
-
 router.beforeEach((to, from, next) => {
   // 서버 에러 시 핸들링
   if(API_CONFIG.SERVER_ERROR) {
@@ -53,9 +50,10 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-const app = createApp(App)
-
-app.use(router)
-app.use(vuetify)
-
-app.mount('#app')
+PRINCIPAL.synchronize()
+  .then(() => {
+    const app = createApp(App)
+    app.use(router)
+    app.use(vuetify)
+    app.mount('#app')
+  })
