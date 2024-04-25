@@ -7,70 +7,66 @@ import {API_URL} from '@/stores/api';
 import LoadingLayer from "@/components/common/LoadingLayer.vue";
 
 const content = reactive({
-    list: [],
-    isLoading: true,
-    state: 'PROCEED',
-    panel: []
+  list: [],
+  isLoading: true,
+  state: 'PROCEED',
+  panel: []
 })
 
 dto.reset()
 getQuests(content.state)
 
 function getQuests(state) {
-    content.isLoading = true
-    axios.get(`${ API_URL.QUEST_LIST_GET }?state=${state}`)
-        .then((res) => {
-            if (res) {
-              content.list = res.data.data
-            }
-        }).finally(() => {
-            content.isLoading = false
-        })
+  content.isLoading = true
+  axios.get(`${API_URL.QUEST_LIST_GET}?state=${state}`)
+      .then((res) => {
+        if (res) {
+          content.list = res.data.data
+        }
+      }).finally(() => {
+    content.isLoading = false
+  })
 }
 
 function formatDateString(dateStr) {
-    const split = dateStr.split('T')
-    return split[0] + ' ' + split[1]
+  const split = dateStr.split('T')
+  return split[0] + ' ' + split[1]
 }
 
 function canCompleteQuest(quest) {
-    return quest.detailQuests.length === quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length
+  return quest.detailQuests.length === quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length
 }
 
 function interactDetailQuest(questId, detailId, questIndex, detailIndex, data = undefined) {
-    
-    axios.patch(API_URL.QUEST_DETAIL_UPDATE(questId, detailId), data)
-        .then((res) => {
-          if(res) {
-            const data = res.data.data
-            content.list[questIndex].canComplete = data.canCompleteParent
-            content.list[questIndex].detailQuests[detailIndex] = data
-          }
-        })
+  axios.patch(API_URL.QUEST_DETAIL_UPDATE(questId, detailId), data)
+      .then((res) => {
+        if (res) {
+          const data = res.data.data
+          content.list[questIndex].canComplete = data.canCompleteParent
+          content.list[questIndex].detailQuests[detailIndex] = data
+        }
+      })
 }
 
 function onRightClickInteractDetail(questId, detailId, questIndex, detailIndex) {
-
-    const count = content.list[questIndex].detailQuests[detailIndex].count
-    if (count === 0) return
-    
-    const data = {
-        count: count - 1
-    }
-
-    interactDetailQuest(questId, detailId, questIndex, detailIndex, data)
+  const count = content.list[questIndex].detailQuests[detailIndex].count
+  if (count === 0) return
+  const data = {
+    count: count - 1
+  }
+  interactDetailQuest(questId, detailId, questIndex, detailIndex, data)
 }
 
 function patchQuest(url, questId, questIndex) {
-    axios.patch(url(questId))
-        .then(() => {
-            content.list.splice(questIndex, 1)
-    })
+  axios.patch(url(questId))
+      .then(() => {
+        content.list.splice(questIndex, 1)
+      })
 }
 
 function changeStateTab() {
-    content.panel = [];
-    getQuests(content.state)
+  content.panel = [];
+  getQuests(content.state)
 }
 </script>
 
