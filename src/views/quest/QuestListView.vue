@@ -8,86 +8,82 @@ import LoadingLayer from "@/components/common/LoadingLayer.vue";
 import QuestTypeChip from "@/views/quest/components/QuestTypeChip.vue";
 import QuestStateChip from "@/views/quest/components/QuestStateChip.vue";
 
-const content = reactive({
+const questModel = reactive({
   list: [],
-  isLoading: true,
+  isLoading: false,
   state: 'PROCEED',
-  panel: []
-})
+  panel: [],
+  getList: () => {
+    questModel.isLoading = true
+    questModel.panel = []
+    axios.get(`${API_URL.QUEST_LIST_GET}?state=${questModel.state}`)
+        .then((res) => {
+          if (res) {
+            questModel.list = res.data.data
+          }
+        }).finally(() => {
+      questModel.isLoading = false
+    })
+  },
+  complete: (questIndex) => {
+    const targetQuest = questModel.list[questIndex]
+    axios.patch(API_URL.QUEST_COMPLETE(targetQuest.id))
+        .then(() => {
+          questModel.list.slice(questIndex, 1)
+        })
+  },
+  discard: (questIndex) => {
+    const targetQuest = questModel.list[questIndex]
+    axios.patch(API_URL.QUEST_DISCARD(targetQuest.id))
+        .then(() => {
+          questModel.list.slice(questIndex, 1)
+        })
+  },
+  canComplete: (quest) => {
+    return quest.detailQuests.length === quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length
+  },
+  interactDetailQuest: (questIndex, detailIndex, requestData = undefined) => {
+    const targetQuest = questModel.list[questIndex];
+    axios.patch(API_URL.QUEST_DETAIL_UPDATE(targetQuest.id, targetQuest.detailQuests[detailIndex].id), requestData)
+        .then((res) => {
+          if (res) {
+            const data = res.data.data
+            questModel.list[questIndex].canComplete = data.canCompleteParent
+            questModel.list[questIndex].detailQuests[detailIndex] = data
+          }
+        })
+  },
+  interactDetailQuestByRightClick: (questIndex, detailIndex) => {
+    const count = questModel.list[questIndex].detailQuests[detailIndex].count
+    if (count === 0) return
+    const requestData = {
+      count: count - 1
+    }
+    questModel.interactDetailQuest(questIndex, detailIndex, requestData)
+  },
+});
+
 
 dto.reset()
-getQuests(content.state)
-
-function getQuests(state) {
-  content.isLoading = true
-  axios.get(`${API_URL.QUEST_LIST_GET}?state=${state}`)
-      .then((res) => {
-        if (res) {
-          content.list = res.data.data
-        }
-      }).finally(() => {
-    content.isLoading = false
-  })
-}
-
-function formatDateString(dateStr) {
-  const split = dateStr.split('T')
-  return split[0] + ' ' + split[1]
-}
-
-function canCompleteQuest(quest) {
-  return quest.detailQuests.length === quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length
-}
-
-function interactDetailQuest(questId, detailId, questIndex, detailIndex, data = undefined) {
-  axios.patch(API_URL.QUEST_DETAIL_UPDATE(questId, detailId), data)
-      .then((res) => {
-        if (res) {
-          const data = res.data.data
-          content.list[questIndex].canComplete = data.canCompleteParent
-          content.list[questIndex].detailQuests[detailIndex] = data
-        }
-      })
-}
-
-function onRightClickInteractDetail(questId, detailId, questIndex, detailIndex) {
-  const count = content.list[questIndex].detailQuests[detailIndex].count
-  if (count === 0) return
-  const data = {
-    count: count - 1
-  }
-  interactDetailQuest(questId, detailId, questIndex, detailIndex, data)
-}
-
-function patchQuest(url, questId, questIndex) {
-  axios.patch(url(questId))
-      .then(() => {
-        content.list.splice(questIndex, 1)
-      })
-}
-
-function changeStateTab() {
-  content.panel = [];
-  getQuests(content.state)
-}
+questModel.getList()
 </script>
 
 <template>
   <VContainer class="w-33 h-75" id="test" style="min-width:min-content; margin-top:100px;">
     <div class="d-flex justify-center">
-      <VTabs bg-color="white" color="black" v-model="content.state" hide-slider align-tabs="center"
+      <VTabs bg-color="white" color="black" v-model="questModel.state" hide-slider align-tabs="center"
              selected-class="selected-tab" class="ma-2 w-fit rounded">
-        <VTab value="PROCEED" @click="changeStateTab" rounded text="진행"/>
-        <VTab value="COMPLETE" @click="changeStateTab" rounded text="완료"/>
-        <VTab value="DISCARD" @click="changeStateTab" rounded text="포기"/>
-        <VTab value="FAIL" @click="changeStateTab" rounded text="실패"/>
+        <VTab value="PROCEED" @click="questModel.getList()" rounded text="진행"/>
+        <VTab value="COMPLETE" @click="questModel.getList()" rounded text="완료"/>
+        <VTab value="DISCARD" @click="questModel.getList()" rounded text="포기"/>
+        <VTab value="FAIL" @click="questModel.getList()" rounded text="실패"/>
       </VTabs>
     </div>
-    <VExpansionPanels v-model="content.panel" multiple variant="inset" class="align-center pb-2"
+    <VExpansionPanels v-model="questModel.panel" multiple variant="inset" class="align-center pb-2"
                       style="min-width:400px;">
-      <LoadingLayer v-if="content.isLoading"></LoadingLayer>
-      <div v-if="content.list.length === 0">등록된 퀘스트가 없습니다.</div>
-      <VExpansionPanel v-for="(quest, qIndex) in content.list" :key="qIndex" :value="qIndex">
+      <LoadingLayer v-if="questModel.isLoading"></LoadingLayer>
+      <div v-if="questModel.list.length === 0">등록된 퀘스트가 없습니다.</div>
+      <VExpansionPanel v-for="(quest, qIndex) in questModel.list" :key="qIndex" :value="qIndex">
         <VExpansionPanelTitle>
           <VRow>
             <VCol cols="12" class="pa-1">
@@ -101,11 +97,11 @@ function changeStateTab() {
             <VCol cols="12" class="pa-1">
               <VChip v-if="!!quest.deadLine"
                      class="ma-1 font-weight-bold" size="small" color="yellow-darken-4"
-                     :text="'마감기한 : ' + formatDateString(quest.deadLine)"/>
+                     :text="'마감기한 : ' + quest.deadLine"/>
             </VCol>
           </VRow>
           <VChip v-if="quest.detailQuests.length > 0"
-                 class="float-right me-2" :color="canCompleteQuest(quest) ? 'green' : ''"
+                 class="float-right me-2" :color="questModel.canComplete(quest) ? 'green' : ''"
                  :text="quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length + '/' + quest.detailQuests.length"/>
         </VExpansionPanelTitle>
         <VExpansionPanelText>
@@ -118,12 +114,12 @@ function changeStateTab() {
                   <VCheckboxBtn v-if="detail.type === 'CHECK'"
                       class="justify-center"
                       :model-value="detail.state === 'COMPLETE'"
-                      @click.prevent="interactDetailQuest(quest.id, detail.id, qIndex, dIndex)"
+                      @click.prevent="questModel.interactDetailQuest(qIndex, dIndex)"
                   />
                   <VBtn v-if="detail.type === 'COUNT'"
                       class="my-1" rounded="lg" size="small"
-                      @click="interactDetailQuest(quest.id, detail.id, qIndex, dIndex)"
-                      @contextmenu.prevent="onRightClickInteractDetail(quest.id, detail.id, qIndex, dIndex)"
+                      @click="questModel.interactDetailQuest(qIndex, dIndex)"
+                      @contextmenu.prevent="questModel.interactDetailQuestByRightClick(qIndex, dIndex)"
                       :text="detail.count + '/' + detail.targetCount"/>
                 </div>
               </template>
@@ -135,12 +131,12 @@ function changeStateTab() {
                     @click="dto.set(quest); router.push(`/quests/${quest.id}`)"
                     text="수정"/>
               <VBtn rounded="lg" size="small" class="ma-2"
-                    @click="patchQuest(API_URL.QUEST_DISCARD, quest.id, qIndex)"
+                    @click="questModel.discard(qIndex)"
                     text="포기"/>
             </VCol>
             <VCol cols="4" class="d-flex justify-end">
               <VBtn v-if="quest.canComplete" rounded="lg" size="small" class="ma-2"
-                    @click="patchQuest(API_URL.QUEST_COMPLETE, quest.id, qIndex)"
+                    @click="questModel.complete(qIndex)"
                     text="완료"/>
             </VCol>
           </VRow>
