@@ -15,6 +15,8 @@ jobs:
       VITE_API_URL: ${{ vars.VITE_API_URL }}
       VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
       VITE_SESSION_STORAGE_KEY: ${{ vars.VITE_SESSION_STORAGE_KEY }}
+      VITE_TEST_USER_TOKEN: ${{ vars.VITE_TEST_USER_TOKEN }}
+      VITE_TEST_ADMIN_TOKEN: ${{ vars.VITE_TEST_ADMIN_TOKEN }}
     steps:
       - name: Node.js 셋업
         uses: actions/setup-node@v3
@@ -50,8 +52,8 @@ jobs:
       - name: AWS 인증 구성
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: arn:aws:iam::851725570762:role/github-action-code-deploy-oidc
-          aws-region: ap-northeast-2
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
       - name: 버전 정보 생성
         run: |
           cd deploy
