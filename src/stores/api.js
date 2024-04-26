@@ -52,5 +52,13 @@ export const API_URL = {
     CONFIRM: (notificationId) => `/notifications/${notificationId}/confirm`,
     DELETE: (notificationId) => `/notifications/${notificationId}/delete`,
   },
+  PREFERENCE_QUEST: {
+    LIST: '/preference/quests' ,
+    GET_INFO: (preferenceQuestId) => `/preference/quests/${preferenceQuestId}`,
+    SAVE: '/preference/quests',
+    UPDATE: (preferenceQuestId) => `/preference/quests/${preferenceQuestId}`,
+    DELETE: (preferenceQuestId) => `/preference/quests/${preferenceQuestId}/delete`,
+    REGISTER_QUEST: (preferenceQuestId) => `/preference/quests/${preferenceQuestId}/register`,
+  },
   SSE_CONNECT: '/sse'
 }
