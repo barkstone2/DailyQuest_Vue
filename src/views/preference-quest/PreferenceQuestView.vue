@@ -114,6 +114,7 @@ preferenceQuestModel.getList()
               <VCardText>
                 <div>등록일 : {{ prefQuest.createdDate }}</div>
                 <div>마지막 수정일 : {{ prefQuest.lastModifiedDate }}</div>
+                <div>등록한 횟수 : {{ prefQuest.usedCount }}</div>
               </VCardText>
               <VCardActions class="justify-center">
                 <VBtn rounded="lg" class="ma-2" @click="preferenceQuestModel.registerQuest(prefQuest.id)">퀘스트 등록</VBtn>
