@@ -1,166 +1,173 @@
 <script setup>
-import {reactive} from 'vue'
+import {provide, reactive} from 'vue'
 import router from '../../router';
 import axios from 'axios'
 import {dto} from '@/stores/quest';
 import {API_URL} from '@/stores/api';
 import LoadingLayer from "@/components/common/LoadingLayer.vue";
+import PreferenceQuestView from "@/views/preference-quest/PreferenceQuestView.vue";
+import QuestTypeChip from "@/views/quest/components/QuestTypeChip.vue";
+import QuestStateChip from "@/views/quest/components/QuestStateChip.vue";
 
-const content = reactive({
-    list: [],
-    isLoading: true,
-    state: 'PROCEED',
-    panel: []
-})
+const layout = reactive({
+  floatingMenuOpened: false,
+  preferenceDialogOpened: false,
+  closePreferenceDialog: () => {
+    layout.preferenceDialogOpened = false;
+  }
+});
+
+const questModel = reactive({
+  list: [],
+  isLoading: false,
+  state: 'PROCEED',
+  panel: [],
+  getList: () => {
+    questModel.isLoading = true
+    questModel.panel = []
+    axios.get(`${API_URL.QUEST_LIST_GET}?state=${questModel.state}`)
+        .then((res) => {
+          if (res) {
+            questModel.list = res.data.data
+          }
+        }).finally(() => {
+      questModel.isLoading = false
+    })
+  },
+  complete: (questIndex) => {
+    const targetQuest = questModel.list[questIndex]
+    axios.patch(API_URL.QUEST_COMPLETE(targetQuest.id))
+        .then(() => {
+          questModel.list.slice(questIndex, 1)
+        })
+  },
+  discard: (questIndex) => {
+    const targetQuest = questModel.list[questIndex]
+    axios.patch(API_URL.QUEST_DISCARD(targetQuest.id))
+        .then(() => {
+          questModel.list.slice(questIndex, 1)
+        })
+  },
+  canComplete: (quest) => {
+    return quest.detailQuests.length === quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length
+  },
+  interactDetailQuest: (questIndex, detailIndex, requestData = undefined) => {
+    const targetQuest = questModel.list[questIndex];
+    axios.patch(API_URL.QUEST_DETAIL_UPDATE(targetQuest.id, targetQuest.detailQuests[detailIndex].id), requestData)
+        .then((res) => {
+          if (res) {
+            const data = res.data.data
+            questModel.list[questIndex].canComplete = data.canCompleteParent
+            questModel.list[questIndex].detailQuests[detailIndex] = data
+          }
+        })
+  },
+  interactDetailQuestByRightClick: (questIndex, detailIndex) => {
+    const count = questModel.list[questIndex].detailQuests[detailIndex].count
+    if (count === 0) return
+    const requestData = {
+      count: count - 1
+    }
+    questModel.interactDetailQuest(questIndex, detailIndex, requestData)
+  },
+});
+
+provide('closePreferenceDialog', layout.closePreferenceDialog)
+provide('getQuestList', questModel.getList)
 
 dto.reset()
-getQuests(content.state)
-
-function getQuests(state) {
-    content.isLoading = true
-    axios.get(`${ API_URL.QUEST_LIST_GET }?state=${state}`)
-        .then((res) => {
-            if (res) {
-              content.list = res.data.data
-            }
-        }).finally(() => {
-            content.isLoading = false
-        })
-}
-
-function formatDateString(dateStr) {
-    const split = dateStr.split('T')
-    return split[0] + ' ' + split[1]
-}
-
-function canCompleteQuest(quest) {
-    return quest.detailQuests.length === quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length
-}
-
-function interactDetailQuest(questId, detailId, questIndex, detailIndex, data = undefined) {
-    
-    axios.patch(API_URL.QUEST_DETAIL_UPDATE(questId, detailId), data)
-        .then((res) => {
-            const data = res.data.data
-            content.list[questIndex].canComplete = data.canCompleteParent
-            content.list[questIndex].detailQuests[detailIndex] = data
-
-        })
-}
-
-function onRightClickInteractDetail(questId, detailId, questIndex, detailIndex) {
-
-    const count = content.list[questIndex].detailQuests[detailIndex].count
-    if (count === 0) return
-    
-    const data = {
-        count: count - 1
-    }
-
-    interactDetailQuest(questId, detailId, questIndex, detailIndex, data)
-}
-
-function patchQuest(url, questId, questIndex) {
-    axios.patch(url(questId))
-        .then(() => {
-            content.list.splice(questIndex, 1)
-    })
-}
-
-function changeStateTab() {
-    content.panel = [];
-    getQuests(content.state)
-}
+questModel.getList()
 </script>
 
 <template>
-    <VContainer class="w-33 h-75" id="test" style="min-width:min-content; margin-top:100px;">
-        <div class="d-flex justify-center">
-            <VTabs bg-color="white" color="black" v-model="content.state" hide-slider align-tabs="center" selected-class="selected-tab" class="ma-2 w-fit rounded">
-                <VTab value="PROCEED" @click="changeStateTab">진행</VTab>
-                <VTab value="COMPLETE" @click="changeStateTab">완료</VTab>
-                <VTab value="DISCARD" @click="changeStateTab">포기</VTab>
-                <VTab value="FAIL" @click="changeStateTab">실패</VTab>
-            </VTabs>
-        </div>
-        <VExpansionPanels v-model="content.panel" multiple variant="inset" class="align-center pb-2" style="min-width:400px;">
-          <LoadingLayer v-if="content.isLoading"></LoadingLayer>
-            <div v-if="content.list.length === 0">등록된 퀘스트가 없습니다.</div>
-            <VExpansionPanel v-for="(quest, qIndex) in content.list" :key="qIndex" :value="qIndex">
-                <VExpansionPanelTitle>
-                    <VRow>
-                        <VCol cols="12" class="pa-1">
-                            <span class="ma-1 font-weight-bold">{{ '#' + quest.seq }}</span>
-                            <VChip class="ma-1 font-weight-bold" label size="small" color="primary" v-if="quest.type === 'MAIN'">메인</VChip>
-                            <VChip class="ma-1 font-weight-bold" label size="small" color="secondary" v-else>서브</VChip>
-                        
-                            <VChip class="ma-1 font-weight-bold" label size="small" color="indigo" v-if="quest.state === 'PROCEED'">진행중</VChip>
-                            <VChip class="ma-1 font-weight-bold" label size="small" color="green" v-else-if="quest.state === 'COMPLETE'">완료</VChip>
-                            <VChip class="ma-1 font-weight-bold" label size="small" v-else-if="quest.state === 'DISCARD'">포기</VChip>
-                            <VChip class="ma-1 font-weight-bold" label size="small" color="red" v-else-if="quest.state === 'FAIL'">실패</VChip>
-                            
-                        </VCol>
-                        <VCol cols="12" class="pa-1">
-                            <span class="ma-1 font-weight-bold">{{ quest.title }}</span>
-                        </VCol>
-                        <VCol cols="12" class="pa-1">
-                            <VChip class="ma-1 font-weight-bold" label size="small" color="yellow-darken-4" v-if="!!quest.deadLine">마감기한 : {{ formatDateString(quest.deadLine) }}</VChip>
-                        </VCol>
-                    </VRow>
-                    <VChip v-if="quest.detailQuests.length > 0" label :color="canCompleteQuest(quest) ? 'green' : ''" class="float-right me-2">{{ quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length + '/' + quest.detailQuests.length }}</VChip>
-                </VExpansionPanelTitle>
-                <VExpansionPanelText>
-                    <div class="pb-2" style="white-space: pre-wrap;">{{ quest.description }}</div>
-                    <div v-for="(detail, dIndex) in quest.detailQuests" :key="dIndex">
-                        <VListItem active class="rounded ma-2">
-                            <VListItemTitle class="text-wrap">{{ detail.title }}</VListItemTitle>
-                            <template #append>
-                                <div style="height:40px; width:64px" class="d-flex align-center justify-center ps-2">
-                                    <VCheckboxBtn 
-                                        v-if="detail.type === 'CHECK'" 
-                                        :model-value="detail.state === 'COMPLETE'"
-                                        @click.prevent="interactDetailQuest(quest.id, detail.id, qIndex, dIndex)"
-                                        >
-                                    </VCheckboxBtn>
-                                    <VBtn 
-                                        v-if="detail.type === 'COUNT'"
-                                        rounded="lg" size="small"
-                                        class="my-1"
-                                        @click="interactDetailQuest(quest.id, detail.id, qIndex, dIndex)"
-                                        @contextmenu.prevent="onRightClickInteractDetail(quest.id, detail.id, qIndex, dIndex)"
-                                        >
-                                        {{ detail.count + '/' + detail.targetCount }}
-                                    </VBtn>
-                                </div>
-                            </template>
-                        </VListItem>
-                    </div>
-                    <VRow v-if="quest.state === 'PROCEED'">
-                        <VCol cols="8">
-                            <VBtn rounded="lg" size="small" class="ma-2"
-                            @click="dto.set(quest); router.push(`/quests/${quest.id}`)"
-                            >수정</VBtn>
-                            <VBtn rounded="lg" size="small" class="ma-2"
-                            @click="patchQuest(API_URL.QUEST_DISCARD, quest.id, qIndex)"
-                            >포기</VBtn>
-                        </VCol>
-                        <VCol cols="4" class="d-flex justify-end">
-                            <VBtn v-if="quest.canComplete" rounded="lg" size="small" class="ma-2"
-                            @click="patchQuest(API_URL.QUEST_COMPLETE, quest.id, qIndex)"
-                            >완료</VBtn>
-                        </VCol>
-                    </VRow>
-                </VExpansionPanelText>
-            </VExpansionPanel>
-        </VExpansionPanels>
-    </VContainer>
-    <RouterLink to="/quests/save" class="position-fixed ma-10" style="bottom:0; right:0;">
-        <VBtn icon="mdi-plus" size="small"/>
-    </RouterLink>
+  <VContainer class="w-33 h-75" id="test" style="min-width:min-content; margin-top:100px;">
+    <div class="d-flex justify-center">
+      <VTabs bg-color="white" color="black" v-model="questModel.state" hide-slider align-tabs="center"
+             selected-class="selected-tab" class="ma-2 w-fit rounded">
+        <VTab value="PROCEED" @click="questModel.getList()" rounded text="진행"/>
+        <VTab value="COMPLETE" @click="questModel.getList()" rounded text="완료"/>
+        <VTab value="DISCARD" @click="questModel.getList()" rounded text="포기"/>
+        <VTab value="FAIL" @click="questModel.getList()" rounded text="실패"/>
+      </VTabs>
+    </div>
+    <VExpansionPanels v-model="questModel.panel" multiple variant="inset" class="align-center pb-2"
+                      style="min-width:400px;">
+      <LoadingLayer v-if="questModel.isLoading"></LoadingLayer>
+      <div v-if="questModel.list.length === 0">등록된 퀘스트가 없습니다.</div>
+      <VExpansionPanel v-for="(quest, qIndex) in questModel.list" :key="qIndex" :value="qIndex">
+        <VExpansionPanelTitle>
+          <VRow>
+            <VCol cols="12" class="pa-1">
+              <span class="ma-1 font-weight-bold">{{ '#' + quest.seq }}</span>
+              <QuestTypeChip :quest-type="quest.type"/>
+              <QuestStateChip :quest-state="quest.state"/>
+            </VCol>
+            <VCol cols="12" class="pa-1">
+              <span class="ma-1 font-weight-bold">{{ quest.title }}</span>
+            </VCol>
+            <VCol cols="12" class="pa-1">
+              <VChip v-if="!!quest.deadLine"
+                     class="ma-1 font-weight-bold" size="small" color="yellow-darken-4"
+                     :text="'마감기한 : ' + quest.deadLine"/>
+            </VCol>
+          </VRow>
+          <VChip v-if="quest.detailQuests.length > 0"
+                 class="float-right me-2" :color="questModel.canComplete(quest) ? 'green' : ''"
+                 :text="quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length + '/' + quest.detailQuests.length"/>
+        </VExpansionPanelTitle>
+        <VExpansionPanelText>
+          <div class="pb-2" style="white-space: pre-wrap;">{{ quest.description }}</div>
+          <div v-for="(detail, dIndex) in quest.detailQuests" :key="dIndex">
+            <VListItem active class="rounded ma-2">
+              <VListItemTitle class="text-wrap">{{ detail.title }}</VListItemTitle>
+              <template #append>
+                <div style="height:40px; width:64px" class="d-flex align-center justify-center ps-2">
+                  <VCheckboxBtn v-if="detail.type === 'CHECK'"
+                      class="justify-center"
+                      :model-value="detail.state === 'COMPLETE'"
+                      @click.prevent="questModel.interactDetailQuest(qIndex, dIndex)"
+                  />
+                  <VBtn v-if="detail.type === 'COUNT'"
+                      class="my-1" rounded="lg" size="small"
+                      @click="questModel.interactDetailQuest(qIndex, dIndex)"
+                      @contextmenu.prevent="questModel.interactDetailQuestByRightClick(qIndex, dIndex)"
+                      :text="detail.count + '/' + detail.targetCount"/>
+                </div>
+              </template>
+            </VListItem>
+          </div>
+          <VRow v-if="quest.state === 'PROCEED'">
+            <VCol cols="8">
+              <VBtn rounded="lg" size="small" class="ma-2"
+                    @click="dto.set(quest); router.push(`/quests/${quest.id}`)"
+                    text="수정"/>
+              <VBtn rounded="lg" size="small" class="ma-2"
+                    @click="questModel.discard(qIndex)"
+                    text="포기"/>
+            </VCol>
+            <VCol cols="4" class="d-flex justify-end">
+              <VBtn v-if="quest.canComplete" rounded="lg" size="small" class="ma-2"
+                    @click="questModel.complete(qIndex)"
+                    text="완료"/>
+            </VCol>
+          </VRow>
+        </VExpansionPanelText>
+      </VExpansionPanel>
+    </VExpansionPanels>
+  </VContainer>
+  <div class="position-fixed ma-10" style="bottom:0; right:0;">
+    <VMenu v-model="layout.floatingMenuOpened" location="top">
+      <template #activator="{ props }">
+        <VBtn v-if="layout.floatingMenuOpened" icon="mdi-menu-open" v-bind="props"/>
+        <VBtn v-else icon="mdi-menu" v-bind="props"/>
+      </template>
+      <VBtn icon="mdi-star" class="my-1" @click="layout.preferenceDialogOpened = true"/>
+      <RouterLink to="/quests/save" class="mb-2 mt-1">
+        <VBtn icon="mdi-pencil"/>
+      </RouterLink>
+    </VMenu>
+  </div>
+  <VDialog v-model="layout.preferenceDialogOpened" persistent>
+    <PreferenceQuestView v-if="layout.preferenceDialogOpened"/>
+  </VDialog>
 </template>
-
-<style>
-.selected-tab {
-    background-color: lightgray;
-}
-</style>

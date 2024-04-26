@@ -4,9 +4,10 @@ import { PRINCIPAL } from '@/stores/principal';
 import {computed, reactive, ref} from 'vue';
 import { API_URL } from '@/stores/api';
 import LoadingLayer from "@/components/common/LoadingLayer.vue";
+import router from "@/router";
 
 const statusLoading = ref(true)
-const tab = ref(null)
+const tab = computed(() => router.currentRoute.value.name)
 
 const totalStatistics = reactive({
   registeredCount: 0,
@@ -78,10 +79,13 @@ axios
                 <div>
                     <VTabs bg-color="white" color="black" v-model="tab" hide-slider align-tabs="center" selected-class="selected-tab" class="mt-2 w-fit rounded-lg">
                         <RouterLink to="/status" style="color: black;">
-                            <VTab value="statistics">통계</VTab>
+                            <VTab value="statistics" rounded>통계</VTab>
                         </RouterLink>
                         <RouterLink to="/status/history" style="color: black;">
-                            <VTab value="quest-history">퀘스트 기록</VTab>
+                            <VTab value="quest-history" rounded>퀘스트 기록</VTab>
+                        </RouterLink>
+                        <RouterLink to="/status/achievements" style="color: black;">
+                          <VTab value="achievements" rounded>업적</VTab>
                         </RouterLink>
                     </VTabs>
                 </div>
@@ -92,8 +96,3 @@ axios
         </VRow>
     </VContainer>
 </template>
-<style>
-.selected-tab {
-    background-color: lightgray;
-}
-</style>

@@ -1,10 +1,7 @@
 import axios from 'axios'
 import { computed, reactive, ref } from 'vue'
 import router from '@/router'
-import {API_URL} from '@/stores/api'
-
-const ENV = import.meta.env
-const SESSION_STORAGE_KEY = ENV.VITE_SESSION_STORAGE_KEY
+import {API_CONFIG, API_URL} from '@/stores/api'
 
 const nowDate = new Date()
 nowDate.setSeconds(0)
@@ -17,10 +14,6 @@ setInterval(() => {
   now.value = nowDate
 }, 60 * 1000)
 
-function hasPrincipalOnSessionStorage() {
-  return !!sessionStorage.getItem(SESSION_STORAGE_KEY)
-}
-
 function updatePrincipal(data) {
   PRINCIPAL.id = data.id
   PRINCIPAL.nickname = data.nickname
@@ -31,35 +24,10 @@ function updatePrincipal(data) {
   PRINCIPAL.requireExp = data.requireExp
   PRINCIPAL.gold = data.gold
   PRINCIPAL.resetTime = 6
-  PRINCIPAL.coreTime = data.coreTime
+  PRINCIPAL.coreTimeHour = data.coreTimeHour
   PRINCIPAL.resetTimeLastModifiedDate = data.resetTimeLastModifiedDate
   PRINCIPAL.coreTimeLastModifiedDate = data.coreTimeLastModifiedDate
-
-  updateSessionStorage()
-}
-
-function updateSessionStorage() {
-  const newPrincipal = {
-    id: PRINCIPAL.id,
-    nickname: PRINCIPAL.nickname,
-    providerType: PRINCIPAL.providerType,
-    authorities: PRINCIPAL.authorities,
-    level: PRINCIPAL.level,
-    currentExp: PRINCIPAL.currentExp,
-    requireExp: PRINCIPAL.requireExp,
-    gold: PRINCIPAL.gold,
-    resetTime: 6,
-    coreTime: PRINCIPAL.coreTime,
-    resetTimeLastModifiedDate: PRINCIPAL.resetTimeLastModifiedDate,
-    coreTimeLastModifiedDate: PRINCIPAL.coreTimeLastModifiedDate
-  }
-
-  sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(newPrincipal))
-}
-
-function getPrincipalFromLocalStorage() {
-  const json = sessionStorage.getItem(SESSION_STORAGE_KEY)
-  return JSON.parse(json)
+  PRINCIPAL.notificationCount = data.notificationCount
 }
 
 function isBeforeOneDayFromNowOrIsNull(compareDate) {
@@ -79,6 +47,14 @@ function calcRemainTimeUntilToUpdate(compareDate) {
   return `${hours}시간 ${minutes}분`
 }
 
+function sseConnect() {
+  const url = `${API_CONFIG.SERVER_URL}${API_URL.SSE_CONNECT}`;
+  const sse = new EventSource(url, { withCredentials: true })
+  sse.addEventListener('notification', () => {
+    PRINCIPAL.hasNewNotification = true
+  });
+}
+
 export const PRINCIPAL = reactive({
   id: null,
   nickname: '',
@@ -89,7 +65,7 @@ export const PRINCIPAL = reactive({
   requireExp: 0,
   gold: 0,
   resetTime: 6,
-  coreTime: 0,
+  coreTimeHour: 0,
   resetTimeLastModifiedDate: null,
   coreTimeLastModifiedDate: null,
   isAdmin: computed(() => {
@@ -107,31 +83,26 @@ export const PRINCIPAL = reactive({
   remainTimeUntilToUpdateResetTime: computed(() => {
     return calcRemainTimeUntilToUpdate(PRINCIPAL.resetTimeLastModifiedDate)
   }),
+  hasNewNotification: false,
   invalidate() {
     this.id = null
-    sessionStorage.removeItem(SESSION_STORAGE_KEY)
   },
   logout() {
-    axios.post(API_URL.TOKEN_INVALIDATE).then(() => {
-      this.invalidate()
-      router.push('/login')
-    })
+    axios.post(API_URL.TOKEN_INVALIDATE)
+      .then(() => {
+        this.invalidate()
+        router.push('/login')
+      })
   },
-  async synchronize(force = false) {
-    // 세션 저장소에 사용자 정보가 존재하는 경우 현재 사용자 정보로 사용
-    if (hasPrincipalOnSessionStorage() && !force) {
-      const principal = getPrincipalFromLocalStorage();
-      updatePrincipal(principal)
-    } else {
-      // 사용자 정보가 세션 저장소에 없으면 서버에 요청
-      await axios.get(API_URL.USER_GET)
-          .then((res) => {
-            if (res) {
-              const data = res.data.data
-              updatePrincipal(data)
-            }
-          })
-    }
+  async synchronize() {
+    await axios.get(API_URL.USER_GET)
+        .then((res) => {
+          if (res) {
+            const data = res.data.data
+            updatePrincipal(data)
+          }
+        })
+    sseConnect()
   },
   getExpText() {
     const ratio = (this.currentExp / this.requireExp) * 100

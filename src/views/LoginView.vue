@@ -6,10 +6,7 @@ import { PRINCIPAL } from '@/stores/principal';
 import { MENU } from '@/stores/menu';
 import { API_URL, API_CONFIG } from '@/stores/api';
 
-if(PRINCIPAL.id) router.push("/")
-
 function onLoginSuccess(response) {
-
     const googleIdToken = response.credential
 
     axios.post(API_URL.TOKEN_ISSUE,
@@ -17,10 +14,12 @@ function onLoginSuccess(response) {
             "idToken": googleIdToken,
             "providerType": "GOOGLE"
         }
-    ).then(function () {
+    ).then((tokenResponse) => {
+      if(tokenResponse) {
         PRINCIPAL.synchronize().then(() => {
-            router.push(MENU.redirectRoute)
+          router.push(MENU.redirectRoute)
         })
+      }
     })
 }
 

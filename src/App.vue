@@ -2,6 +2,17 @@
 import { RouterView } from 'vue-router';
 import { PRINCIPAL } from './stores/principal'
 import { MENU } from './stores/menu';
+import BadgeIcon from "@/components/common/BadgeIcon.vue";
+import {provide, ref} from "vue";
+import NotificationListView from "@/views/notification/NotificationListView.vue";
+
+const notificationOpened = ref(false)
+provide('notificationOpened', notificationOpened)
+
+const openNotification = () => {
+  notificationOpened.value = true
+  PRINCIPAL.hasNewNotification = false
+}
 
 </script>
 <template>
@@ -16,6 +27,7 @@ import { MENU } from './stores/menu';
                 <div>Exp {{ PRINCIPAL.getExpText() }}</div>
                 <div>Gold {{ PRINCIPAL.gold }}</div>
             </div>
+          <div v-if="PRINCIPAL.hasNewNotification" class="badge"></div>
         </VBtn>
         <VNavigationDrawer v-model="MENU.sideMenuOpened" temporary location="right">
             <VListItem>
@@ -28,6 +40,18 @@ import { MENU } from './stores/menu';
                     <div>Gold {{ PRINCIPAL.gold }}</div>
                 </VListItemTitle>
             </VListItem>
+          <VDivider></VDivider>
+            <div class="d-flex justify-space-around pa-2">
+              <BadgeIcon :need-badge="PRINCIPAL.notificationCount > 0" :count="PRINCIPAL.notificationCount" class="pa-1 cursor-pointer" @click="openNotification">
+                <VIcon icon="mdi-bell-outline"/>
+              </BadgeIcon>
+              <BadgeIcon class="d-none pa-1">
+                <VIcon icon="mdi-email-outline"></VIcon>
+              </BadgeIcon>
+              <BadgeIcon class="d-none pa-1">
+                <VIcon icon="mdi-chat-outline"></VIcon>
+              </BadgeIcon>
+            </div>
 
             <VDivider></VDivider>
 
@@ -45,10 +69,26 @@ import { MENU } from './stores/menu';
             </template>
         </VNavigationDrawer>
         <RouterView></RouterView>
+      <VDialog max-width="500" v-model="notificationOpened" :scrim=false>
+        <NotificationListView v-if="notificationOpened"/>
+      </VDialog>
     </VLayout>
 </template>
 <style>
 .w-fit {
   width: fit-content;
+}
+.badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-radius: 50%;
+  background-color: #f62f2f;
+  font-size: 5px;
+  padding: 5px 5px;
+}
+.selected-tab {
+  background-color: lightgray;
+  border-radius: 0 !important;
 }
 </style>

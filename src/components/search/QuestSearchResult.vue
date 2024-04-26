@@ -13,11 +13,6 @@ defineEmits(
     ['update:page']
 )
 
-function formatDateString(dateStr) {
-  const split = dateStr.split('T')
-  return split[0] + ' ' + split[1]
-}
-
 function canCompleteQuest(quest) {
   return quest.detailQuests.length === quest.detailQuests.filter((detail) => detail.state === 'COMPLETE').length
 }
@@ -47,13 +42,13 @@ function canCompleteQuest(quest) {
                   <span class="ma-1 font-weight-bold">{{ quest.title }}</span>
                 </VCol>
                 <VCol cols="12" class="pa-1">
-                  <VChip class="ma-1 font-weight-bold" label size="small" color="yellow-darken-4" v-if="!!quest.deadLine">마감기한 : {{ formatDateString(quest.deadLine) }}</VChip>
+                  <VChip class="ma-1 font-weight-bold" label size="small" color="yellow-darken-4" v-if="!!quest.deadLine">마감기한 : {{ quest.deadLine }}</VChip>
                 </VCol>
               </VRow>
             </VCol>
             <VCol>
               <div>
-                {{ formatDateString(quest.createdDate) }}
+                {{ quest.createdDate }}
               </div>
             </VCol>
             <VCol cols="1">

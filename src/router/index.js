@@ -21,6 +21,11 @@ const routes = [
     path: '/error',
     name: 'error',
     component: () => import('@/views/ServerErrorView.vue')
+  },
+  {
+    path: '/test/login',
+    name: 'testLogin',
+    component: () => import('@/views/TestLoginView.vue')
   }
 ]
 
@@ -67,6 +72,12 @@ const statusRoutes = [
         path: 'history',
         meta: statusMeta,
         component: () => import('../views/status/HistoryView.vue')
+      },
+      {
+        name: 'achievements',
+        path: 'achievements',
+        meta: statusMeta,
+        component: () => import('@/views/achievement/AchievementListView.vue')
       }
     ]
   },
@@ -84,15 +95,21 @@ const adminRoutes = [
     children: [
       {
         path: '',
-        name: 'adminSettings',
+        name: 'system',
         meta: adminMeta,
         component: () => import('../views/admin/AdminSettingsView.vue')
       },
       {
         path: 'exp-table',
-        name: 'expTable',
+        name: 'exp-table',
         meta: adminMeta,
         component: () => import('../views/admin/AdminExpTableView.vue')
+      },
+      {
+        name: 'admin-achievements',
+        path: 'achievements',
+        meta: adminMeta,
+        component: () => import('@/views/achievement/AdminAchievementListView.vue')
       }
     ]
   }
