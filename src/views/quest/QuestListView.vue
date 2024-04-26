@@ -1,12 +1,21 @@
 <script setup>
-import {reactive} from 'vue'
+import {provide, reactive} from 'vue'
 import router from '../../router';
 import axios from 'axios'
 import {dto} from '@/stores/quest';
 import {API_URL} from '@/stores/api';
 import LoadingLayer from "@/components/common/LoadingLayer.vue";
+import PreferenceQuestView from "@/views/preference-quest/PreferenceQuestView.vue";
 import QuestTypeChip from "@/views/quest/components/QuestTypeChip.vue";
 import QuestStateChip from "@/views/quest/components/QuestStateChip.vue";
+
+const layout = reactive({
+  floatingMenuOpened: false,
+  preferenceDialogOpened: false,
+  closePreferenceDialog: () => {
+    layout.preferenceDialogOpened = false;
+  }
+});
 
 const questModel = reactive({
   list: [],
@@ -63,6 +72,8 @@ const questModel = reactive({
   },
 });
 
+provide('closePreferenceDialog', layout.closePreferenceDialog)
+provide('getQuestList', questModel.getList)
 
 dto.reset()
 questModel.getList()
@@ -144,7 +155,19 @@ questModel.getList()
       </VExpansionPanel>
     </VExpansionPanels>
   </VContainer>
-  <RouterLink to="/quests/save" class="position-fixed ma-10" style="bottom:0; right:0;">
-    <VBtn icon="mdi-plus" size="small"/>
-  </RouterLink>
+  <div class="position-fixed ma-10" style="bottom:0; right:0;">
+    <VMenu v-model="layout.floatingMenuOpened" location="top">
+      <template #activator="{ props }">
+        <VBtn v-if="layout.floatingMenuOpened" icon="mdi-menu-open" v-bind="props"/>
+        <VBtn v-else icon="mdi-menu" v-bind="props"/>
+      </template>
+      <VBtn icon="mdi-star" class="my-1" @click="layout.preferenceDialogOpened = true"/>
+      <RouterLink to="/quests/save" class="mb-2 mt-1">
+        <VBtn icon="mdi-pencil"/>
+      </RouterLink>
+    </VMenu>
+  </div>
+  <VDialog v-model="layout.preferenceDialogOpened" persistent>
+    <PreferenceQuestView v-if="layout.preferenceDialogOpened"/>
+  </VDialog>
 </template>
