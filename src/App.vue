@@ -11,7 +11,6 @@ provide('notificationOpened', notificationOpened)
 
 const openNotification = () => {
   notificationOpened.value = true
-  PRINCIPAL.hasNewNotification = false
 }
 
 </script>
@@ -27,7 +26,7 @@ const openNotification = () => {
                 <div>Exp {{ PRINCIPAL.getExpText() }}</div>
                 <div>Gold {{ PRINCIPAL.gold }}</div>
             </div>
-          <div v-if="PRINCIPAL.hasNewNotification" class="badge"></div>
+          <div v-if="PRINCIPAL.notificationCount > 0" class="badge"></div>
         </VBtn>
         <VNavigationDrawer v-model="MENU.sideMenuOpened" temporary location="right">
             <VListItem>
