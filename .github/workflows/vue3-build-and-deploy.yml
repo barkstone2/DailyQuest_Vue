@@ -17,6 +17,7 @@ jobs:
       VITE_SESSION_STORAGE_KEY: ${{ vars.VITE_SESSION_STORAGE_KEY }}
       VITE_TEST_USER_TOKEN: ${{ vars.VITE_TEST_USER_TOKEN }}
       VITE_TEST_ADMIN_TOKEN: ${{ vars.VITE_TEST_ADMIN_TOKEN }}
+      VITE_TEST_TOKEN_DOMAIN: ${{ vars.VITE_TEST_TOKEN_DOMAIN }}
     steps:
       - name: Node.js 셋업
         uses: actions/setup-node@v3
