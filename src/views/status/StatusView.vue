@@ -14,7 +14,10 @@ const totalStatistics = reactive({
   completedCount: 0,
   discardedCount: 0,
   failedCount: 0,
-  completeRatio: computed(() => Math.round(totalStatistics.completedCount * 100 / totalStatistics.registeredCount))
+  completeRatio: computed(() => {
+    if (totalStatistics.completedCount === 0) return 0
+    return Math.round(totalStatistics.completedCount * 100 / totalStatistics.registeredCount)
+  })
 })
 
 axios
