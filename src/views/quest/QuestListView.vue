@@ -38,14 +38,16 @@ const questModel = reactive({
     const targetQuest = questModel.list[questIndex]
     axios.patch(API_URL.QUEST_COMPLETE(targetQuest.id))
         .then(() => {
-          questModel.list.slice(questIndex, 1)
+          questModel.panel = []
+          questModel.list.splice(questIndex, 1)
         })
   },
   discard: (questIndex) => {
     const targetQuest = questModel.list[questIndex]
     axios.patch(API_URL.QUEST_DISCARD(targetQuest.id))
         .then(() => {
-          questModel.list.slice(questIndex, 1)
+          questModel.panel = []
+          questModel.list.splice(questIndex, 1)
         })
   },
   canComplete: (quest) => {
