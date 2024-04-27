@@ -95,7 +95,7 @@ export const PRINCIPAL = reactive({
         })
   },
   getExpText() {
-    const ratio = (this.currentExp / this.requireExp) * 100
+    const ratio = Math.floor(this.currentExp * 100 / this.requireExp)
     return `${this.currentExp} / ${this.requireExp}(${ratio}%)`
   },
   nextResetTime: computed(() => {
