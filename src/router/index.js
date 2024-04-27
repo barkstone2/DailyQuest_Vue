@@ -5,7 +5,7 @@ const routes = [
     path: '/',
     name: 'home',
     component: () => import('../views/HomeView.vue'),
-    meat: { needAuthentication: true }
+    meta: { needAuthentication: true }
   },
   {
     path: '/:pathMatches(.*)',
