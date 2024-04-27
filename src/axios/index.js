@@ -22,6 +22,7 @@ axios.interceptors.request.use(config => {
 });
 
 const responseInterceptor = (response) => {
+  PRINCIPAL.synchronize()
   const config = response.config;
   if(isCommandRequest(config)) {
     const requestKey = createRequestKey(config)
