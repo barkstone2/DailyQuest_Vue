@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { computed, reactive, ref } from 'vue'
 import router from '@/router'
-import {API_CONFIG, API_URL} from '@/stores/api'
+import {API_URL} from '@/stores/api'
 
 const nowDate = new Date()
 nowDate.setSeconds(0)
@@ -47,14 +47,6 @@ function calcRemainTimeUntilToUpdate(compareDate) {
   return `${hours}시간 ${minutes}분`
 }
 
-function sseConnect() {
-  const url = `${API_CONFIG.SERVER_URL}${API_URL.SSE_CONNECT}`;
-  const sse = new EventSource(url, { withCredentials: true })
-  sse.addEventListener('notification', () => {
-    PRINCIPAL.hasNewNotification = true
-  });
-}
-
 export const PRINCIPAL = reactive({
   id: null,
   nickname: '',
@@ -83,7 +75,6 @@ export const PRINCIPAL = reactive({
   remainTimeUntilToUpdateResetTime: computed(() => {
     return calcRemainTimeUntilToUpdate(PRINCIPAL.resetTimeLastModifiedDate)
   }),
-  hasNewNotification: false,
   invalidate() {
     this.id = null
   },
@@ -102,7 +93,6 @@ export const PRINCIPAL = reactive({
             updatePrincipal(data)
           }
         })
-    sseConnect()
   },
   getExpText() {
     const ratio = (this.currentExp / this.requireExp) * 100
