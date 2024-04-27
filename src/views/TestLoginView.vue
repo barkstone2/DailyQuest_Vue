@@ -5,7 +5,7 @@ import router from "@/router";
 import {PRINCIPAL} from "@/stores/principal";
 
 function loginTestAdmin() {
-  document.cookie = `X-ACCESS-TOKEN=${ENV.VITE_TEST_ADMIN_TOKEN};path=/`
+  document.cookie = `X-ACCESS-TOKEN=${ENV.VITE_TEST_ADMIN_TOKEN}; path=/; domain=${ENV.VITE_TEST_TOKEN_DOMAIN};`
   PRINCIPAL.synchronize()
       .then(() => {
         router.push("/")
@@ -13,7 +13,7 @@ function loginTestAdmin() {
 }
 
 function loginTestUser() {
-  document.cookie = `X-ACCESS-TOKEN=${ENV.VITE_TEST_USER_TOKEN};path=/`
+  document.cookie = `X-ACCESS-TOKEN=${ENV.VITE_TEST_USER_TOKEN}; path=/; domain=${ENV.VITE_TEST_TOKEN_DOMAIN};`
   PRINCIPAL.synchronize()
       .then(() => {
         router.push("/")
