@@ -88,6 +88,11 @@ const save = {
     type: selectedType,
     targetValue: '',
   }),
+  clearDto: () => {
+    save.dto.title = ''
+    save.dto.description = ''
+    save.dto.targetValue = ''
+  },
   form: ref(null),
   submit: async () => {
     const { valid } = await save.form.value.validate()
@@ -98,6 +103,7 @@ const save = {
           .then(() => {
             getAllAchievements()
             save.closeDialog()
+            save.clearDto()
             alert('등록이 완료되었습니다.')
           })
     }
@@ -106,7 +112,10 @@ const save = {
   openDialog: () => {
     save.dialogOpened.value = true
   },
-  closeDialog: () => save.dialogOpened.value = false,
+  closeDialog: () => {
+    save.dialogOpened.value = false
+    save.clearDto()
+  }
 }
 
 const state = {
