@@ -26,6 +26,7 @@ function onLoginSuccess(response) {
 onMounted(() => {
     google.accounts.id.initialize({
         client_id: API_CONFIG.GOOGLE_CLIENT_ID,
+        use_fedcm_for_prompt: true,
         callback: onLoginSuccess
     });
     google.accounts.id.renderButton(
