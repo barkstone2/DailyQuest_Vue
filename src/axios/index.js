@@ -1,6 +1,6 @@
 import axios, {Cancel} from 'axios'
 import router from '@/router'
-import { API_CONFIG } from '@/stores/api'
+import {API_CONFIG, API_URL} from '@/stores/api'
 import { PRINCIPAL } from '@/stores/principal'
 
 axios.defaults.withCredentials = true
@@ -22,11 +22,13 @@ axios.interceptors.request.use(config => {
 });
 
 const responseInterceptor = (response) => {
-  PRINCIPAL.synchronize()
   const config = response.config;
   if(isCommandRequest(config)) {
     const requestKey = createRequestKey(config)
     pendingRequests.delete(requestKey);
+  }
+  if (config.url !== API_URL.USER_GET) {
+    PRINCIPAL.synchronize().then(() => {})
   }
   return response
 };
