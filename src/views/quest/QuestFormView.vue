@@ -50,19 +50,16 @@ const form = ref(null)
 async function requestQuest() {
 
   const {valid} = await form.value.validate()
-  if (valid && !dto.submitting) {
-    dto.submitting = true
+  if (valid) {
     if (dto.id) {
       axios.patch(API_URL.QUEST_UPDATE(dto.id), dto)
           .then(() => {
             router.push('/quests')
-            dto.submitting = false
           })
     } else {
       axios.post(API_URL.QUEST_SAVE, dto)
           .then(() => {
             router.push('/quests')
-            dto.submitting = false
           })
     }
   }
