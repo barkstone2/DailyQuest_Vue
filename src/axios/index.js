@@ -2,6 +2,7 @@ import axios, {Cancel} from 'axios'
 import router from '@/router'
 import {API_CONFIG, API_URL} from '@/stores/api'
 import { PRINCIPAL } from '@/stores/principal'
+import {LAYOUT} from "@/stores/layout";
 
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = API_CONFIG.SERVER_URL
@@ -16,6 +17,7 @@ axios.interceptors.request.use(config => {
     if (pendingRequests.has(requestKey)) {
       return Promise.reject(new Cancel())
     }
+    LAYOUT.showRequestProcessLayout = true
     pendingRequests.add(requestKey)
   }
   return config
@@ -26,6 +28,7 @@ const responseInterceptor = (response) => {
   if(isCommandRequest(config)) {
     const requestKey = createRequestKey(config)
     pendingRequests.delete(requestKey);
+    LAYOUT.showRequestProcessLayout = false
   }
   if (config.url !== API_URL.USER_GET) {
     PRINCIPAL.synchronize().then(() => {})
@@ -34,6 +37,7 @@ const responseInterceptor = (response) => {
 };
 
 const errorInterceptor = (error) => {
+  LAYOUT.showRequestProcessLayout = false
   const isServerError = (error) => { return error.code === 'ERR_NETWORK' }
   if(isServerError(error)) {
     API_CONFIG.SERVER_ERROR = true
