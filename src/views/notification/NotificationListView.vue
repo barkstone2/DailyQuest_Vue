@@ -5,6 +5,7 @@ import {inject, reactive, ref, watch} from "vue";
 import {API_URL} from "@/stores/api";
 import router from "@/router";
 import {MENU} from "@/stores/menu";
+import LoadingLayer from "@/components/common/LoadingLayer.vue";
 
 const notificationOpened = inject('notificationOpened', true);
 
@@ -153,6 +154,7 @@ function routingNotification(notificationId, index) {
 </script>
 <template>
   <VCard class="py-2">
+    <LoadingLayer v-if="content.isLoading"></LoadingLayer>
     <div class="d-flex justify-center">
       <VTabs bg-color="white" color="black" v-model="tab" hide-slider align-tabs="center" selected-class="selected-tab" class="mt-2 w-fit rounded-lg text-center">
         <VTab color="black" value="not-confirmed">확인하지 않은 알림</VTab>
