@@ -5,6 +5,8 @@ import { MENU } from './stores/menu';
 import BadgeIcon from "@/components/common/BadgeIcon.vue";
 import {provide, ref} from "vue";
 import NotificationListView from "@/views/notification/NotificationListView.vue";
+import LoadingLayer from "@/components/common/LoadingLayer.vue";
+import {LAYOUT} from "@/stores/layout";
 
 const notificationOpened = ref(false)
 provide('notificationOpened', notificationOpened)
@@ -12,6 +14,8 @@ provide('notificationOpened', notificationOpened)
 const openNotification = () => {
   notificationOpened.value = true
 }
+
+const test = ref(true)
 
 </script>
 <template>
@@ -71,6 +75,11 @@ const openNotification = () => {
       <VDialog max-width="500" v-model="notificationOpened" :scrim=false>
         <NotificationListView v-if="notificationOpened"/>
       </VDialog>
+      <VOverlay v-model="LAYOUT.showRequestProcessLayout" persistent no-click-animation
+                class="justify-center align-center no-drag" content-class="text-center">
+        <VProgressCircular indeterminate/>
+        <div class="pa-3">처리 중입니다.</div>
+      </VOverlay>
     </VLayout>
 </template>
 <style>
