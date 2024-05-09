@@ -7,16 +7,18 @@ import {LAYOUT} from "@/stores/layout";
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = API_CONFIG.SERVER_URL
 
-const isCommandRequest = (config) => { return config.method.toLowerCase() === ('post' || 'patch' || 'put' || 'delete') }
+const isCommandRequest = (config) => { return ['post', 'patch', 'put', 'delete'].includes(config.method.toLowerCase()) }
 const createRequestKey = (config) => { return `${config.method} ${config.url}` }
 
 const pendingRequests = new Set();
 axios.interceptors.request.use(config => {
+  console.log(config.method.toLowerCase())
   if (isCommandRequest(config)) {
     const requestKey = createRequestKey(config)
     if (pendingRequests.has(requestKey)) {
       return Promise.reject(new Cancel())
     }
+    console.log('command quest')
     LAYOUT.showRequestProcessLayout = true
     pendingRequests.add(requestKey)
   }
