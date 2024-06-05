@@ -1,10 +1,12 @@
 <script setup>
 import {ref} from "vue";
+import LoadingLayer from "@/components/common/LoadingLayer.vue";
 
 defineProps({
   list: Array,
   totalPages: Number,
   emptyMessage: String,
+  isLoading: Boolean,
 });
 
 const page = ref(1)
@@ -21,6 +23,7 @@ function canCompleteQuest(quest) {
 
 <template>
   <div style="border-radius: 2px;" class="pa-1">
+    <LoadingLayer v-if="isLoading"></LoadingLayer>
     <div v-if="list.length === 0">{{ emptyMessage }}</div>
     <VExpansionPanels v-else v-for="(quest, qIndex) in list" :key="qIndex" :value="qIndex">
       <VExpansionPanel>

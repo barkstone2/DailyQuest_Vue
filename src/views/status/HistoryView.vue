@@ -66,6 +66,7 @@ watch(page, () => {
 const searchResult = reactive({
     list: [],
     totalPages: 0,
+    isLoading: false,
 })
 
 function sendSearchRequest() {
@@ -80,6 +81,7 @@ function sendSearchRequest() {
 }
 
 function searchQuest() {
+  searchResult.isLoading = true
     let queryString = `?`;
     queryString += `page=${searchCondition.page-1}`
     queryString += `&state=${searchCondition.state}`
@@ -92,10 +94,10 @@ function searchQuest() {
         .get(`${API_URL.QUEST_SEARCH}${queryString}`)
         .then((res) => {
             if (res) {
-                const data = res.data.data
-
-                searchResult.list = data.content
-                searchResult.totalPages = data.totalPages
+              const data = res.data.data
+              searchResult.list = data.content
+              searchResult.totalPages = data.totalPages
+              searchResult.isLoading = false
             }
         })
 }
@@ -118,14 +120,13 @@ function searchQuest() {
         <span style="height:58px;" class="d-flex align-center">~</span>
         <VTextField type="date" class="pl-1" v-model="searchRequest.endDate" clearable label="검색 종료일"></VTextField>
     </div>
-
   <QuestSearchResult
       :list="searchResult.list"
       :total-pages="searchResult.totalPages"
       :current-page="page"
+      :is-loading="searchResult.isLoading"
       @update:page="newValue => page = newValue"
       empty-message="검색된 퀘스트가 없습니다."/>
-
 </div>
 
 </template>
